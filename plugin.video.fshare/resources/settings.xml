@@ -1,0 +1,5 @@
+<settings>
+   <setting id="username" type="text" label="User name" />
+   <setting id="password" type="text" option="hidden" label="Password" />
+   <setting id="search_num" type="text" label="Search Number" default="50" />
+</settings>
