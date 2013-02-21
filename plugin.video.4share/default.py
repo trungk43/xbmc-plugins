@@ -112,7 +112,7 @@ def clearSearch():
   cache.delete('searchList')
 
 def clearCache():
-  cache.delete('http%')
+  cache.delete('%')
   
 def search(url, query = '', type='folder', page=0):
 

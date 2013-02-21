@@ -42,7 +42,7 @@ headers=HTTP_DESKTOP_UA
 
 def login():
 
-  if cache.get('cookie') is not None:
+  if cache.get('cookie') is not None and cache.get('cookie') <> '' :
     #xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Using cache', '5')).encode("utf-8"))   
     return True;
 
@@ -111,7 +111,7 @@ def clearSearch():
   cache.delete('searchList')
 
 def clearCache():
-  cache.delete('http%')
+  cache.delete('%')
   
 def search(url, query = '', type='folder', page=0):
 
