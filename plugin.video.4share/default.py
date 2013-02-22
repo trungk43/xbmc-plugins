@@ -33,6 +33,8 @@ MEDIA_EXT=['aif','iff','m3u','m4a','mid','mp3','mpa','ra','wav','wma','3g2','3gp
 FSLINK='http://phimnet.us'
 searchList=[]
 
+#cache.delete('cookie')
+
 def _makeCookieHeader(cookie):
       cookieHeader = ""
       for value in cookie.values():
@@ -98,7 +100,7 @@ def get_categories():
         add_dir('phimnet.us', FSLINK+'/phim-anh.html', 6, icon)
         add_dir('Search', '', 1, icon, query, type, 0)
         add_dir('Search files', '', 9, icon, query, type, 0)
-        add_dir('Clear cache', '', 10, icon, query, type, 0)
+        #add_dir('Clear cache', '', 10, icon, query, type, 0)
 
 def searchMenu(url, query = '', type='folder', page=0):
   add_dir('New Search', url, 2, icon, query, type, 0)
@@ -112,7 +114,7 @@ def clearSearch():
   cache.delete('searchList')
 
 def clearCache():
-  cache.delete('%')
+  cache.delete('http%')
   
 def search(url, query = '', type='folder', page=0):
 
@@ -172,7 +174,13 @@ def resolve_url(url):
   for item in soup.findAll('a'):
     if item['href'].find('?i=')>0:
       url=item['href']
-  print url
+
+
+  if url.find('?i=')<0:
+    cache.delete('cookie')
+    login()
+    return
+
   item = xbmcgui.ListItem(path=url)
   xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
   #subtitles.Main().PlayWaitSubtitles(common.args.url)

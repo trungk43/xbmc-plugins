@@ -40,6 +40,8 @@ def _makeCookieHeader(cookie):
 
 headers=HTTP_DESKTOP_UA
 
+#cache.delete('cookie')
+
 def login():
 
   if cache.get('cookie') is not None and cache.get('cookie') <> '' :
@@ -97,7 +99,7 @@ def get_categories():
         add_dir('fslink', FSLINK, 6, icon)
         add_dir('Search', '', 1, icon, query, type, 0)
         add_dir('Search files', '', 9, icon, query, type, 0)
-        add_dir('Clear cache', '', 10, icon, query, type, 0)
+        #add_dir('Clear cache', '', 10, icon, query, type, 0)
 
 def searchMenu(url, query = '', type='folder', page=0):
   add_dir('New Search', url, 2, icon, query, type, 0)
@@ -111,7 +113,7 @@ def clearSearch():
   cache.delete('searchList')
 
 def clearCache():
-  cache.delete('%')
+  cache.delete('http%')
   
 def search(url, query = '', type='folder', page=0):
 
@@ -169,6 +171,10 @@ def resolve_url(url):
   response = urlfetch.get(url,headers=headers, follow_redirects=False)
   if response.status==302:
     url=response.headers['location']
+  else:
+    cache.delete('cookie')
+    login()
+
   item = xbmcgui.ListItem(path=url)
   xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
   #subtitles.Main().PlayWaitSubtitles(common.args.url)
