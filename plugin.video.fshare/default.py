@@ -11,12 +11,16 @@ import urlfetch
 import Cookie
 #import subtitles
 from BeautifulSoup import BeautifulSoup
+try:
+    import json
+except:
+    import simplejson as json
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.fshare')
 __language__ = __settings__.getLocalizedString
 home = __settings__.getAddonInfo('path')
 icon = xbmc.translatePath( os.path.join( home, 'icon.png' ) )
-cache = StorageServer.StorageServer("fshare",24)
+cache = StorageServer.StorageServer("fshare_0")
 
 HTTP_DESKTOP_UA = {
     'Host':'www.fshare.vn',
@@ -46,7 +50,11 @@ def login():
 
   if cache.get('cookie') is not None and cache.get('cookie') <> '' :
     #xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Using cache', '5')).encode("utf-8"))   
-    return True;
+    return True
+
+  return doLogin()
+
+def doLogin():
 
   cookie = Cookie.SimpleCookie()
   #method = urlfetch.POST
@@ -68,19 +76,20 @@ def login():
 
   cookie.load(response.headers.get('set-cookie', ''))
   headers['Cookie'] = _makeCookieHeader(cookie)
-  cache.set('cookie',headers['Cookie'])
+  #cache.set('cookie',headers['Cookie'])
   
   if headers['Cookie'].find('-1')>0:
     xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login failed. You must input correct FShare username/pass in Add-on settings', '15')).encode("utf-8"))   
     return False
   else:
-    xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login successful', '15')).encode("utf-8"))   
-    return True
-  
+    # xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login successful', '15')).encode("utf-8"))   
+    return headers['Cookie']
+	
 def make_request(url, headers=None):
-        if headers is None:
-            headers2 = {'User-agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
-                       'Referer' : 'http://www.google.com'}
+        headers2 = {
+            'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'User-Agent':'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0'
+        }
         try:
             req = urllib2.Request(url,headers=headers2)
             f = urllib2.urlopen(req)
@@ -96,11 +105,39 @@ def make_request(url, headers=None):
 
 
 def get_categories():
-        add_dir('fslink', FSLINK, 6, icon)
         add_dir('Search', '', 1, icon, query, type, 0)
         add_dir('Search files', '', 9, icon, query, type, 0)
-        #add_dir('Clear cache', '', 10, icon, query, type, 0)
+        add_dir('Top 250', "http://akas.imdb.com/chart/top", 6, icon)
+        add_dir('imdb', '', 11, icon, query, type, 0)
+        add_dir('Add-on settings', '', 10, icon, query, type, 0)
 
+def imdb_cat():
+        add_dir('TV series', "http://akas.imdb.com/search/title?num_votes=5000,&sort=user_rating,desc&title_type=tv_series&ref_=nb_tv_3_srs", 6, icon)
+        add_dir('Top 250', "http://akas.imdb.com/chart/top", 6, icon)
+        add_dir('Action', "http://akas.imdb.com/search/title?genres=action&sort=moviemeter,asc", 6, icon)
+        add_dir('Adventure', "http://akas.imdb.com/search/title?genres=adventure&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Animation', "http://akas.imdb.com/search/title?genres=animation&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Biography', "http://akas.imdb.com/search/title?genres=biography&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Comedy', "http://akas.imdb.com/search/title?genres=comedy&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Crime', "http://akas.imdb.com/search/title?genres=crime&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Documentary', "http://akas.imdb.com/search/title?genres=documentary&sort=moviemeter,asc", 6, icon)
+        add_dir('Drama', "http://akas.imdb.com/search/title?genres=drama&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Family', "http://akas.imdb.com/search/title?genres=family&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Fantasy', "http://akas.imdb.com/search/title?genres=fantasy&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Film-Noir', "http://akas.imdb.com/search/title?genres=film_noir&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('History', "http://akas.imdb.com/search/title?genres=history&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Music', "http://akas.imdb.com/search/title?genres=music&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Musical', "http://akas.imdb.com/search/title?genres=musical&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Mystery', "http://akas.imdb.com/search/title?genres=mystery&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Romance', "http://akas.imdb.com/search/title?genres=romance&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Sci-Fi', "http://akas.imdb.com/search/title?genres=sci-fi&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Short', "http://akas.imdb.com/search/title?genres=short&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Sport', "http://akas.imdb.com/search/title?genres=sport&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Thriller', "http://akas.imdb.com/search/title?genres=thriller&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('War', "http://akas.imdb.com/search/title?genres=war&title_type=feature&sort=moviemeter,asc", 6, icon)
+        add_dir('Western', "http://akas.imdb.com/search/title?genres=western&title_type=feature&sort=moviemeter,asc", 6, icon)
+		
+		
 def searchMenu(url, query = '', type='folder', page=0):
   add_dir('New Search', url, 2, icon, query, type, 0)
   add_dir('Clear Search', url, 3, icon, query, type, 0)
@@ -110,7 +147,7 @@ def searchMenu(url, query = '', type='folder', page=0):
     add_dir(item, url, 2, icon, item, type, 0)
 
 def clearSearch():
-  cache.delete('searchList')
+  cache.set('searchList','')
 
 def clearCache():
   cache.delete('http%')
@@ -167,12 +204,16 @@ def search(url, query = '', type='folder', page=0):
   
   
 def resolve_url(url):
-  headers['Cookie'] = cache.get('cookie')
+  #if not login():
+  #   return
+  #headers['Cookie'] = cache.get('cookie')
+  #print headers['Cookie']
+  headers['Cookie'] = doLogin()
   response = urlfetch.get(url,headers=headers, follow_redirects=False)
-  if response.status==302:
+  if response.status==302 and response.headers['location'].find('logout.php')<0:
     url=response.headers['location']
   else:
-    cache.delete('cookie')
+    cache.set('cookie','')
     login()
 
   item = xbmcgui.ListItem(path=url)
@@ -217,12 +258,15 @@ def get_params():
         return param
 
 #http://www.fshare.vn/folder/T3C031J6NT
-def fshare_get_video_list(url):
+def fshare_get_video_list(url, title=None):
         soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
         #items = soup('li', {'class' : 'w_80pc'})
         items = soup.findAll('li', {'class' : 'w_80pc'})
         #items = soup.find('ul')
         video_list = []
+        if (title is not None) and len(items)>5:
+            add_dir(title, url, 5, '')
+            return
         for i in items:
             href = i.a['href']
             spans = i('span')
@@ -230,6 +274,7 @@ def fshare_get_video_list(url):
             #print span['data-cfemail']
             if span is None:
               name = spans[0].text
+              size = spans[1].text
             else:
               str3=''
               str2=span.get('data-cfemail')
@@ -237,7 +282,10 @@ def fshare_get_video_list(url):
               ran=len(str2)/2
               for num in range(1,ran):
                 str3=str3+chr( int(str2[num*2:num*2+2], 16)^r)
-              name = str3
+              start = spans[0].text.find("[")-1 #str3
+              end = spans[0].text.rfind("]")+1 #str3
+              name = spans[0].text[0:start]+spans[0].text[end:]
+              size = spans[2].text
             if name is None:
               name='Unknown'
             thumb = ''
@@ -245,29 +293,26 @@ def fshare_get_video_list(url):
             duration = 0
             desc = ''
             if (name is not None) and (len(name)>3) and (name[-3:] in MEDIA_EXT): 
-                add_link(date, name+ '  (' + spans[1].text + ')', duration, href, thumb, desc)
+                add_link(date, name+ '  (' + size + ')', duration, href, thumb, desc)
 
 def fslink_get_video_categories(url):
         soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
-        items = soup.find('ul', {'class' : 'mega-menu'},'li')
-        #items = items('li')
-        video_list = []
-		
-        for item in items.findAll('a'):
-            if item.string is not None:
-              href = FSLINK+item['href']
-              name = item.string
-              if name is None:
-                name='Unknown'
-              thumb = ''
-              date = ''
-              duration = None
-              desc = ''
+        items = soup.findAll('a')
+
+        for item in items:
+            if (item['href'] is not None) and (item['href'].startswith('/title') and len(item.text)>1):
               try:
-                add_dir(name, href, 7, icon)
+                add_dir(item.text, '', 2, '', item.text, 'folder', 0)
               except:
                 pass
-				
+            if (item['href'] is not None) and (item.text.startswith('Next')):
+              try:
+                add_dir(item.text, 'http://akas.imdb.com' + item['href'], 6, '')
+              except:
+                pass
+
+        return
+		
 #http://fslink.us/category/phim-2/phim-le/				
 def fslink_get_video_list(url):
         soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -349,9 +394,9 @@ print "page: "+str(page)
 print "query: "+str(query)
 
 if mode==None:
-  if not login():
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-  else:    
+  #if not login():
+  #  xbmcplugin.endOfDirectory(int(sys.argv[1]))
+  #else:    
 	get_categories()
 
 elif mode==1:
@@ -376,6 +421,7 @@ elif mode==8:
 elif mode==9:
    searchMenu(url, '', 'file', page)
 elif mode==10:
-   clearCache()
-   
+   __settings__.openSettings()
+elif mode==11:
+  imdb_cat()   
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

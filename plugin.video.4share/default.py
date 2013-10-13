@@ -1,3 +1,4 @@
+import sys 
 import CommonFunctions as common
 import urllib
 import urllib2
@@ -6,7 +7,6 @@ import xbmcplugin
 import xbmcgui
 import xbmcaddon
 import xbmcvfs
-import StorageServer
 import urlfetch
 import Cookie
 #import subtitles
@@ -16,19 +16,26 @@ __settings__ = xbmcaddon.Addon(id='plugin.video.4share')
 __language__ = __settings__.getLocalizedString
 home = __settings__.getAddonInfo('path')
 icon = xbmc.translatePath( os.path.join( home, 'icon.png' ) )
-cache = StorageServer.StorageServer("my_4share", 1)
 
+try:
+	import StorageServer
+	cache = StorageServer.StorageServer("upshare2")
+except:
+	import storageserverdummy as StorageServer
+	cache = StorageServer.StorageServer("upshare2")
+
+	
 HTTP_DESKTOP_UA = {
-    'Host':'www.fshare.vn',
+    'Host':'up.4share.vn',
     'Accept-Encoding':'gzip, deflate',
-    'Referer':'https://www.fshare.vn/login.php',
+    'Referer':'http://up.4share.vn',
     'Connection':'keep-alive',
     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'User-Agent':'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0',
 	'Content-Type': 'application/x-www-form-urlencoded'
 }
 
-SEARCH_URL='http://www.google.com/custom?hl=en&q=site:fshare.vn/%s+%s&num=%s&start=%s&as_qdr=%s'
+SEARCH_URL='http://4share.vn/?control=search&page=%s&str=%s'
 MEDIA_EXT=['aif','iff','m3u','m4a','mid','mp3','mpa','ra','wav','wma','3g2','3gp','asf','asx','avi','flv','mov','mp4','mpg','mkv','m4v','rm','swf','vob','wmv','bin','cue','dmg','iso','mdf','toast','vcd']
 FSLINK='http://phimnet.us'
 searchList=[]
@@ -44,10 +51,9 @@ def _makeCookieHeader(cookie):
 headers=HTTP_DESKTOP_UA
 
 def login():
-
-  if cache.get('cookie') is not None and cache.get('cookie')<>'':
-    print 'Cache ' + cache.get('cookie')
-    return True
+  #if cache.get('cookie') is not None and cache.get('cookie')<>'':
+  #  print 'Cache ' + cache.get('cookie')
+  #  return True
 
   cookie = Cookie.SimpleCookie()
   
@@ -59,7 +65,7 @@ def login():
   form_data = urllib.urlencode(form_fields)
 
   response = urlfetch.fetch(
-    url = 'http://up.4share.vn/?control=login',
+    url = 'http://4share.vn/?control=login',
 	method='POST',
     headers = headers,
 	data=form_data,
@@ -68,11 +74,10 @@ def login():
   cookie.load(response.headers.get('set-cookie', ''))
   headers['Cookie'] = _makeCookieHeader(cookie)
 
-  print 'Cache ' + headers['Cookie']
   cache.set('cookie',headers['Cookie'])
-  print 'Cache ' + cache.get('cookie')
+
   if response.status_code<>302:
-    xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login failed. You must input correct FShare username/pass in Add-on settings', '15')).encode("utf-8"))   
+    xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login failed. You must input correct 4share username/pass in Add-on settings', '15')).encode("utf-8"))   
     return False
   else:
     xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login successful', '15')).encode("utf-8"))   
@@ -98,11 +103,18 @@ def make_request(url, headers=None):
 
 def get_categories():
         add_dir('phimnet.us', FSLINK+'/phim-anh.html', 6, icon)
+        add_dir('List phim', 'http://up.4share.vn/d/3809010d0e010c0e', 2, icon, '', 'd', page+1)
+        add_dir('NatHD', 'http://up.4share.vn/d/6351535457575052', 2, icon, '', 'd', page+1)
+        add_dir('BBC', 'http://up.4share.vn/d/7849484b4c40', 2, icon, '', 'd', page+1)
+        add_dir('HD 1', 'http://up.4share.vn/d/3b09080a0d0a0b09', 2, icon, '', 'd', page+1)
+        add_dir('KHO PHIM', 'http://up.4share.vn/d/62505756575a5151', 2, icon, '', 'd', page+1)
         add_dir('Search', '', 1, icon, query, type, 0)
-        add_dir('Search files', '', 9, icon, query, type, 0)
+        add_dir('Add-on settings', '', 11, icon, query, type, 0)
+        #add_dir('Search files', '', 9, icon, query, type, 0)
         #add_dir('Clear cache', '', 10, icon, query, type, 0)
+        #add_link('', 'tv', 0, 'http://123.30.142.201:8080/livetv/_definst_/ngwildhd_800.stream/manifest.m3u8?DVR', '', '')
 
-def searchMenu(url, query = '', type='folder', page=0):
+def searchMenu(url, query = '', type='f', page=0):
   add_dir('New Search', url, 2, icon, query, type, 0)
   add_dir('Clear Search', url, 3, icon, query, type, 0)
 
@@ -116,74 +128,75 @@ def clearSearch():
 def clearCache():
   cache.delete('http%')
   
-def search(url, query = '', type='folder', page=0):
+def search(url, query = '', type='f', page=0):
 
-  if query is None or query=='':
-    query = common.getUserInput('Search', '') 
-    if query is None:
-      return
+    if type=='f':  
+        if query is None or query=='':
+            query = common.getUserInput('Search', '')
+            if query is None:
+                return
   
-    searchList=cache.get('searchList').split("\n")
-    if not query in searchList:
-      searchList.append(query)
-      cache.set('searchList','\n'.join(searchList))
+        searchList=cache.get('searchList').split("\n")
+        if not query in searchList:
+            searchList.append(query)
+            cache.set('searchList','\n'.join(searchList))
   
-  url=SEARCH_URL % (type,query.replace(' ', '+'),__settings__.getSetting('search_num'),str(int(__settings__.getSetting('search_num'))*page),'all')
-  soup = BeautifulSoup(str(make_request(url)), convertEntities=BeautifulSoup.HTML_ENTITIES)		
-  results=soup.findAll('div', {'class': 'g'})
-  if type=='folder':
-    for folder in results:
-      a=folder.find('a')
-      name=a.text.encode("utf-8").replace('  ',' ')
-      href=a['href']
-      add_dir(name, href, 5, icon)
-  else:
-    for folder in results:
-      a=folder.find('a')
-      name=a.text.encode("utf-8").replace('  ',' ')
-      href=a['href']
-      thumb = ''
-      date = ''
-      duration = 0
-      desc = ''
-      if name.find('Fshare - Dich vu chia se')==0:
-        span=folder.find('span', {'class':'s'})
-        str2=span.text
-        if str2.find(' tin:')>=0:
-          name=str2[str2.find(' tin:')+5:str2.find('Dung l')-2]
-        else:
-          name=str2[0:str2.find('Dung l')-2]
-	  
-      if name.find('- Fshare - Dich')>0:
-        name=name[:name.find('- Fshare - Dich')]
-#      if (name is not None) and (len(name)>3) and (name[-3:] in MEDIA_EXT): 
-      add_link(date, name.strip(), duration, href, thumb, desc)
+        url=SEARCH_URL % (str(page+1),query.replace(' ','+'))
+    
+    try:
+        soup = BeautifulSoup(str(make_request(url)), convertEntities=BeautifulSoup.HTML_ENTITIES)		
+  
+        #items = soup.find('table', {'class' : 'glx03'})
 
-	  
-  add_dir('Page 1', url, 2, icon, query, type, 0)
-  add_dir('Page 2', url, 2, icon, query, type, 1)
-  add_dir('Page 3', url, 2, icon, query, type, 2)
-  add_dir('Page 4', url, 2, icon, query, type, 3)
-  add_dir('Page 5', url, 2, icon, query, type, 4)
+        for a in soup.findAll('a'):
+            try:
+                if a['href'].find('/d/')>0:
+                    add_dir(a.text, a['href'], 2, icon, '', 'd', page+1)
+                else:
+                    if a['href'].find('/f/')>0:
+                        add_link('', a['href'].rpartition('/')[2].replace('.file',''), 0, a['href'], '', '')
+            except:
+                pass			
+    except:
+        pass			
+
+    add_dir('>', url, 2, icon, query, type, page+1)
   
   
 def resolve_url(url):
-  headers['Cookie'] = cache.get('cookie')
+  headers=HTTP_DESKTOP_UA
+  cookie = Cookie.SimpleCookie()
+  
+  form_fields = {
+   "inputUserName": __settings__.getSetting('username'),
+   "inputPassword": __settings__.getSetting('password')
+  }
+
+  form_data = urllib.urlencode(form_fields)
+
+  response = urlfetch.fetch(
+    url = 'http://4share.vn/?control=login',
+	method='POST',
+    headers = headers,
+	data=form_data,
+    follow_redirects = False)
+
+  cookie.load(response.headers.get('set-cookie', ''))
+  headers['Cookie'] = _makeCookieHeader(cookie)
+  
   response = urlfetch.fetch(url,headers=headers, follow_redirects=True)
+
   soup = BeautifulSoup(response.content, convertEntities=BeautifulSoup.HTML_ENTITIES)
   for item in soup.findAll('a'):
-    if item['href'].find('?i=')>0:
+    if item['href'].find('uf=')>0:
       url=item['href']
 
-
-  if url.find('?i=')<0:
-    cache.delete('cookie')
-    login()
+  if url.find('uf=')<0:
+    xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Authentication', 'Please check your 4share username/password', '15')).encode("utf-8"))   
     return
-
+	  
   item = xbmcgui.ListItem(path=url)
   xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
-  #subtitles.Main().PlayWaitSubtitles(common.args.url)
 
 def add_link(date, name, duration, href, thumb, desc):
         description = date+'\n\n'+desc
@@ -195,7 +208,7 @@ def add_link(date, name, duration, href, thumb, desc):
 
 
 
-def add_dir(name,url,mode,iconimage,query='',type='folder',page=0):
+def add_dir(name,url,mode,iconimage,query='',type='f',page=0):
         u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&query="+str(query)+"&type="+str(type)+"&page="+str(page)#+"&name="+urllib.quote_plus(name)
         ok=True
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
@@ -222,7 +235,6 @@ def get_params():
 
         return param
 
-#http://www.fshare.vn/folder/T3C031J6NT
 def fshare_get_video_list(url):
         soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
         #items = soup('li', {'class' : 'w_80pc'})
@@ -256,7 +268,7 @@ def fshare_get_video_list(url):
 #http://phimnet.us/phim-anh.html
 def fslink_get_video_categories(url):
         soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
-        items = soup.find('div', {'class' : 'box box_menu'})
+        items = soup.find('aside', {'id' : 'leftcollumn'})
         #items = items('li')
         video_list = []
 		
@@ -276,24 +288,36 @@ def fslink_get_video_categories(url):
                 pass
 				
 #http://phimnet.us/phim-anh/hanh-dong.html
-def fslink_get_video_list(url):
+def fslink_get_video_list(url, count):
         soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
-        items = soup.findAll('a', {'class' : 'title t'})
+        #items = soup.findAll('a', {'class' : 'title t'})
 
-        for item in items:
+        #for item in items:
           #print item
           #print item.a
           #print item.nextSibling().img('src')
-          add_dir(item.text.encode("utf-8").replace('  ',' '), FSLINK+item['href'], 8, icon)
+          #add_dir(item.text.encode("utf-8").replace('  ',' '), FSLINK+item['href'], 8, icon)
 			  
-        items = soup.find('div', {'class' : 'pager'})
+        items = soup.find('div', {'class' : 'featured-view'})
 
         for item in items.findAll('a'):
             try:
-              add_dir(item.string, FSLINK+item['href'], 7, icon)
+                add_dir(item.img['alt'], FSLINK+item['href'], 8, FSLINK+item.img['src'])
             except:
               pass				
 
+        items = soup.find('div', {'class' : 'vm-pagination'})
+        for item in items.findAll('a'):
+            try:
+                if item.string == '>':
+                    if count < 9:
+                        count = count + 1
+                        fslink_get_video_list(FSLINK+item['href'], count)
+                    else:
+					    add_dir(item.string, FSLINK+item['href'], 7, icon)
+            except:
+              pass				
+    
 #http://phimnet.us/movie/a/8373/Silent_Code_2012.html
 def fslink_get_video(url):
         soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -319,7 +343,7 @@ url=''
 name=None
 mode=None
 query=None
-type='folder'
+type='f'
 page=0
 
 try:
@@ -355,9 +379,6 @@ print "page: "+str(page)
 print "query: "+str(query)
 
 if mode==None:
-  if not login():
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-  else:    
 	get_categories()
 
 elif mode==1:
@@ -376,12 +397,14 @@ elif mode==5:
 elif mode==6:
     fslink_get_video_categories(url)
 elif mode==7:
-    fslink_get_video_list(url)
+    fslink_get_video_list(url, 0)
 elif mode==8:
     fslink_get_video(url)
 elif mode==9:
    searchMenu(url, '', 'file', page)
 elif mode==10:
    clearCache()
+elif mode==11:
+   __settings__.openSettings()
    
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
