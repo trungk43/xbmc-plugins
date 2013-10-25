@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.hdrepo.com"
+		name="hdrepo Add-ons"
+		version="1.0.0"
+		provider-name="Team HDRepo">
+  <requires>
+    <import addon="xbmc.addon" version="12.0.0"/>
+  </requires>
+	<extension point="xbmc.addon.repository"
+		name="HDrepo Add-on Repository">
+		<info compressed="true">https://raw.github.com/trungk43/xbmc-plugins/master/addons.xml</info>
+		<checksum>https://raw.github.com/trungk43/xbmc-plugins/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://raw.github.com/trungk43/xbmc-plugins/master</datadir>
+		<hashes>true</hashes>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en">4share and Fshare</summary>
+		<description lang="en"></description>
+		<disclaimer lang="en"></disclaimer>
+		<platform>all</platform>
+	</extension>
+</addon>
