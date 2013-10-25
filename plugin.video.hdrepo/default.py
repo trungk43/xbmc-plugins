@@ -105,7 +105,7 @@ def get_categories():
 	add_dir('Top 250', "http://akas.imdb.com/chart/top", 6, icon)
 	add_dir('imdb', '', 11, icon, query, type, 0)
 	
-	hdrepo('http://www.hdrepo.com/feed.php?type=root&param=0')
+	hdrepo('http://www.hdrepo.com/v1/feed.php?type=root&param=0')
 
 	add_dir('Add-on settings', '', 10, icon, query, type, 0)
 
