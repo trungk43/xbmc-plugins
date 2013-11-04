@@ -37,7 +37,6 @@ HTTP_DESKTOP_UA = {
 
 SEARCH_URL='http://www.google.com/custom?hl=en&q=site:fshare.vn/%s+%s&num=%s&start=%s&as_qdr=%s'
 MEDIA_EXT=['aif','iff','m3u','m4a','mid','mp3','mpa','ra','wav','wma','3g2','3gp','asf','asx','avi','flv','mov','mp4','mpg','mkv','m4v','rm','swf','vob','wmv','bin','cue','dmg','iso','mdf','toast','vcd']
-FSLINK='http://fslink.us'
 searchList=[]
 headers = HTTP_DESKTOP_UA
 
@@ -98,53 +97,38 @@ def make_request(url):
 def get_categories():
 	if saveSearch=='true':
 		add_dir('Search', '', 1, icon, query, type, 0)
-		add_dir('Search files', '', 9, icon, query, type, 0)
 	else:
 		add_dir('Search', url, 2, icon, '', 'folder', 0)
-		add_dir('Search files', url, 2, icon, '', 'file', 0)
-	add_dir('Top 250', "http://akas.imdb.com/chart/top", 6, icon)
-	add_dir('imdb', '', 11, icon, query, type, 0)
 	
-	hdrepo('http://www.hdrepo.com/v1/feed.php?type=root&param=0')
+	hdrepo('root','')
 
 	add_dir('Add-on settings', '', 10, icon, query, type, 0)
 
-def hdrepo(link):
-	result = json.load(urllib.urlopen(link))
+def hdrepo(provider, param, start=0):
+
+	if provider=='search':
+		param = common.getUserInput('Search', '') 
+		param = param.replace(' ', '%20')
+
+	data = {'provider': provider, 'param': param, 'start': start}
+	data = urllib.urlencode(data)
+	result = json.load(urllib.urlopen('http://www.hdrepo.com/v1/feed.php', data))
 	for item in result:
 		if item['type'] == 'fshare_folder':
-			add_dir(item['title'], item['link'], 5, item['thumb'])
-		if item['type'] == 'fshare_file':
-			add_link(item['date'], item['title'], item['duration'], item['link'], item['thumb'], item['desc'])
-		if item['type'] == 'folder':
-			add_dir(item['title'], item['link'], 12, item['thumb'])
-
-def imdb_cat():
-		add_dir('TV series', "http://akas.imdb.com/search/title?num_votes=5000,&sort=user_rating,desc&title_type=tv_series&ref_=nb_tv_3_srs", 6, icon)
-		add_dir('Top 250', "http://akas.imdb.com/chart/top", 6, icon)
-		add_dir('Action', "http://akas.imdb.com/search/title?genres=action&sort=moviemeter,asc", 6, icon)
-		add_dir('Adventure', "http://akas.imdb.com/search/title?genres=adventure&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Animation', "http://akas.imdb.com/search/title?genres=animation&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Biography', "http://akas.imdb.com/search/title?genres=biography&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Comedy', "http://akas.imdb.com/search/title?genres=comedy&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Crime', "http://akas.imdb.com/search/title?genres=crime&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Documentary', "http://akas.imdb.com/search/title?genres=documentary&sort=moviemeter,asc", 6, icon)
-		add_dir('Drama', "http://akas.imdb.com/search/title?genres=drama&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Family', "http://akas.imdb.com/search/title?genres=family&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Fantasy', "http://akas.imdb.com/search/title?genres=fantasy&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Film-Noir', "http://akas.imdb.com/search/title?genres=film_noir&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('History', "http://akas.imdb.com/search/title?genres=history&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Music', "http://akas.imdb.com/search/title?genres=music&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Musical', "http://akas.imdb.com/search/title?genres=musical&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Mystery', "http://akas.imdb.com/search/title?genres=mystery&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Romance', "http://akas.imdb.com/search/title?genres=romance&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Sci-Fi', "http://akas.imdb.com/search/title?genres=sci-fi&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Short', "http://akas.imdb.com/search/title?genres=short&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Sport', "http://akas.imdb.com/search/title?genres=sport&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Thriller', "http://akas.imdb.com/search/title?genres=thriller&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('War', "http://akas.imdb.com/search/title?genres=war&title_type=feature&sort=moviemeter,asc", 6, icon)
-		add_dir('Western', "http://akas.imdb.com/search/title?genres=western&title_type=feature&sort=moviemeter,asc", 6, icon)
-		
+			#add_dir(item['title'], item['param'], 5, item['thumb'])
+			add_dir(item['title'], item['provider'], 12, item['thumb'], item['param'])
+		else:
+			if item['type'] == 'fshare_file':
+				add_link(item['date'], item['title'], item['duration'], item['param'], item['thumb'], item['desc'])
+			else:
+				if item['type'] == 'folder':
+					try:
+						if 'start' in item:
+							add_dir(item['title'], item['provider'], 12, item['thumb'], item['param'], '', item['start'])
+						else:
+							add_dir(item['title'], item['provider'], 12, item['thumb'], item['param'])
+					except:
+						pass
 		
 def searchMenu(url, query = '', type='folder', page=0):
 	add_dir('New Search', url, 2, icon, query, type, 0)
@@ -172,51 +156,15 @@ def search(url, query = '', type='folder', page=0):
 		if not query in searchList:
 			searchList.append(query)
 			cache.set('searchList','\n'.join(searchList))
-	
-	url=SEARCH_URL % (type,query.replace(' ', '+'),__settings__.getSetting('search_num'),str(int(__settings__.getSetting('search_num'))*page),'all')
-	soup = BeautifulSoup(str(make_request(url)), convertEntities=BeautifulSoup.HTML_ENTITIES)		
-	results=soup.findAll('div', {'class': 'g'})
-	if type=='folder':
-		for folder in results:
-			a=folder.find('a')
-			name=a.text.encode("utf-8").replace('	',' ')
-			href=a['href']
-			add_dir(name, href, 5, icon)
-	else:
-		for folder in results:
-			a=folder.find('a')
-			name=a.text.encode("utf-8").replace('	',' ')
-			href=a['href']
-			thumb = ''
-			date = ''
-			duration = 0
-			desc = ''
-			if name.find('Fshare - Dich vu chia se')==0:
-				span=folder.find('span', {'class':'s'})
-				str2=span.text
-				if str2.find(' tin:')>=0:
-					name=str2[str2.find(' tin:')+5:str2.find('Dung l')-2]
-				else:
-					name=str2[0:str2.find('Dung l')-2]
-			
-			if name.find('- Fshare - Dich')>0:
-				name=name[:name.find('- Fshare - Dich')]
-				#if (name is not None) and (len(name)>3) and (name[-3:] in MEDIA_EXT): 
-				add_link(date, name.strip(), duration, href, thumb, desc)
 
-		
-	add_dir('Page 1', url, 2, icon, query, type, 0)
-	add_dir('Page 2', url, 2, icon, query, type, 1)
-	add_dir('Page 3', url, 2, icon, query, type, 2)
-	add_dir('Page 4', url, 2, icon, query, type, 3)
-	add_dir('Page 5', url, 2, icon, query, type, 4)
+	hdrepo('search4', query)
 	
 	
 def resolve_url(url):
 	if freeAccount == 'true':
 		response = urlfetch.fetch("https://www.cloudviet.com/fshare.php")
-	if response.status == 200:
-		headers['Cookie'] = response.content
+		if response.status == 200:
+			headers['Cookie'] = response.content
 	else:
 		headers['Cookie'] = doLogin()
 
@@ -413,13 +361,10 @@ if mode==None:
 
 elif mode==1:
 	searchMenu(url, '', type, page)
-
 elif mode==2:
 	 search(url, query, type, page)
-
 elif mode==3:
 	clearSearch()
-
 elif mode==4:
 	resolve_url(url)
 elif mode==5:
@@ -434,9 +379,7 @@ elif mode==9:
 	 searchMenu(url, '', 'file', page)
 elif mode==10:
 	 __settings__.openSettings()
-elif mode==11:
-	imdb_cat()	 
 elif mode==12:
-	hdrepo(url)
+	hdrepo(url, str(query), str(page))
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
