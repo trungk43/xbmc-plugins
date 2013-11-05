@@ -11,9 +11,9 @@ import Cookie
 
 from BeautifulSoup import BeautifulSoup
 try:
-    import json
+	import json
 except:
-    import simplejson as json
+	import simplejson as json
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.hdrepo')
 __language__ = __settings__.getLocalizedString
@@ -21,18 +21,19 @@ home = __settings__.getAddonInfo('path')
 icon = xbmc.translatePath( os.path.join( home, 'icon.png' ) )
 saveSearch = __settings__.getSetting('saveSearch')
 freeAccount = __settings__.getSetting('freeAccount')
+email = __settings__.getSetting('email')
 
 if saveSearch=='true':
-    cache = StorageServer.StorageServer("fshare2")
+	cache = StorageServer.StorageServer("fshare2")
 
 
 HTTP_DESKTOP_UA = {
-    'Host':'www.fshare.vn',
-    'Accept-Encoding':'gzip, deflate',
-    'Referer':'https://www.fshare.vn/login.php',
-    'Connection':'keep-alive',
-    'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'User-Agent':'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0'
+	'Host':'www.fshare.vn',
+	'Accept-Encoding':'gzip, deflate',
+	'Referer':'https://www.fshare.vn/login.php',
+	'Connection':'keep-alive',
+	'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+	'User-Agent':'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0'
 }
 
 SEARCH_URL='http://www.google.com/custom?hl=en&q=site:fshare.vn/%s+%s&num=%s&start=%s&as_qdr=%s'
@@ -112,7 +113,7 @@ def hdrepo(provider, param, start=0):
 
 	data = {'provider': provider, 'param': param, 'start': start}
 	data = urllib.urlencode(data)
-	result = json.load(urllib.urlopen('http://www.hdrepo.com/v1/feed.php', data))
+	result = json.load(urllib.urlopen('http://feed.hdrepo.com/v1/feed.php', data))
 	for item in result:
 		if item['type'] == 'fshare_folder':
 			#add_dir(item['title'], item['param'], 5, item['thumb'])
@@ -129,6 +130,16 @@ def hdrepo(provider, param, start=0):
 							add_dir(item['title'], item['provider'], 12, item['thumb'], item['param'])
 					except:
 						pass
+		
+def sendLink(url):
+	data = {'email': email, 'url': url}
+	data = urllib.urlencode(data)
+	try:
+		response = urllib.urlopen('http://feed.hdrepo.com/sendlink.php', data)
+		result = json.load(response)
+		xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Download link', result['message'], '5000')).encode("utf-8"))	 
+	except:
+		xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Download link', 'Server only accepts 1 request/minute', '5000')).encode("utf-8"))	 
 		
 def searchMenu(url, query = '', type='folder', page=0):
 	add_dir('New Search', url, 2, icon, query, type, 0)
@@ -158,26 +169,32 @@ def search(url, query = '', type='folder', page=0):
 			cache.set('searchList','\n'.join(searchList))
 
 	hdrepo('search4', query)
-	
-	
+
 def resolve_url(url):
 	if freeAccount == 'true':
-		response = urlfetch.fetch("https://www.cloudviet.com/fshare.php")
+		response = urlfetch.fetch("http://feed.hdrepo.com/fshare.php")
 		if response.status == 200:
 			headers['Cookie'] = response.content
+		else:
+			xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Server only accepts 1 request/minute', '5000')).encode("utf-8"))	 
+			return
 	else:
 		headers['Cookie'] = doLogin()
 
 	response = urlfetch.get(url,headers=headers, follow_redirects=False)
 	if response.status==302 and response.headers['location'].find('logout.php')<0:
 		url=response.headers['location']
+		# logout
+		cookie = Cookie.SimpleCookie()
+		cookie.load(response.headers.get('set-cookie', ''))
+		headers['Cookie'] = _makeCookieHeader(cookie)
+		urlfetch.get("https://www.fshare.vn/logout.php",headers=headers, follow_redirects=False)
 	else:
-		xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login failed. You must input correct FShare username/pass in Add-on settings', '15')).encode("utf-8"))	 
+		xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login failed. You must input correct FShare username/pass in Add-on settings', '5000')).encode("utf-8"))	 
 		return
 	
 	item = xbmcgui.ListItem(path=url)
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
-	#subtitles.Main().PlayWaitSubtitles(common.args.url)
 
 def add_link(date, name, duration, href, thumb, desc):
 	description = date+'\n\n'+desc
@@ -185,9 +202,9 @@ def add_link(date, name, duration, href, thumb, desc):
 	liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=thumb)
 	liz.setInfo(type="Video", infoLabels={ "Title": name, "Plot": description, "Duration": duration})
 	liz.setProperty('IsPlayable', 'true')
+	if email != '' and freeAccount == 'true':
+		liz.addContextMenuItems([('Send download link',"XBMC.RunPlugin(%s?mode=%s&url=%s) "%(sys.argv[0],13,href))])
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
-
-
 
 def add_dir(name,url,mode,iconimage,query='',type='folder',page=0):
 	u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&query="+str(query)+"&type="+str(type)+"&page="+str(page)#+"&name="+urllib.quote_plus(name)
@@ -215,102 +232,6 @@ def get_params():
 				param[splitparams[0]]=splitparams[1]
 
 	return param
-
-#http://www.fshare.vn/folder/T3C031J6NT
-def fshare_get_video_list(url, title=None):
-	soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
-	#items = soup('li', {'class' : 'w_80pc'})
-	items = soup.findAll('li', {'class' : 'w_80pc'})
-	#items = soup.find('ul')
-	video_list = []
-	if (title is not None) and len(items)>5:
-		add_dir(title, url, 5, '')
-		return
-	for i in items:
-		href = i.a['href']
-		spans = i('span')
-		span = i.find('span',{'class':'__cf_email__'})
-		#print span['data-cfemail']
-		if span is None:
-			name = spans[0].text
-			size = spans[1].text
-		else:
-			str3=''
-			str2=span.get('data-cfemail')
-			r=int(str2[0:2], 16)
-			ran=len(str2)/2
-			for num in range(1,ran):
-				str3=str3+chr( int(str2[num*2:num*2+2], 16)^r)
-			start = spans[0].text.find("[")-1 #str3
-			end = spans[0].text.rfind("]")+1 #str3
-			name = spans[0].text[0:start]+spans[0].text[end:]
-			size = spans[2].text
-
-		if name is None:
-			name='Unknown'
-		thumb = ''
-		date = ''
-		duration = 0
-		desc = ''
-		if (name is not None) and (len(name)>3) and (name[-3:] in MEDIA_EXT): 
-			add_link(date, name+ '	(' + size + ')', duration, href, thumb, desc)
-
-def fslink_get_video_categories(url):
-	soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
-	items = soup.findAll('a')
-
-	for item in items:
-		try:
-			if (item['href'] is not None) and (item['href'].startswith('/title') and len(item.text)>1):
-				try:
-					add_dir(item.text, '', 2, '', item.text, 'folder', 0)
-				except:
-					pass
-			if (item['href'] is not None) and (item.text.startswith('Next')):
-				try:
-					add_dir(item.text, 'http://akas.imdb.com' + item['href'], 6, '')
-				except:
-					pass
-		except:
-			pass
-
-	return
-		
-#http://fslink.us/category/phim-2/phim-le/				
-def fslink_get_video_list(url):
-	soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
-	items = soup.findAll('h3', {'class' : 'entry-title'})
-
-	for item in items:
-		add_dir(item.a.text.encode("utf-8").replace('	',' '), item.a['href'], 8, icon)
-			
-	items = soup.find('div', {'class' : 'wp-pagenavi'})
-
-	for item in items.findAll('a'):
-		try:
-			add_dir(item.string, item['href'], 7, icon)
-		except:
-			pass				
-
-#http://fslink.us/2013/02/04/tro-ve-qua-khu-timeline-2003/				
-def fslink_get_video(url):
-	soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
-	items = soup.findAll('a')
-
-	for item in items:
-		try:
-			if item['href'].find('fshare.vn/folder')>0:
-				add_dir(item.text, item['href'], 5, icon)
-			if item['href'].find('fshare.vn/file')>0:
-				thumb = ''
-				date = ''
-				duration = None
-				desc = ''
-				add_link(date, item.text, duration, item['href'], thumb, desc)
-		except:
-			pass
-				
-xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
 params=get_params()
 
@@ -346,17 +267,13 @@ try:
 except:
 	pass
 
-print "Mode: "+str(mode)
-print "URL: "+str(url)
-print "Name: "+str(name)
-print "type: "+str(type)
-print "page: "+str(page)
-print "query: "+str(query)
+if mode==10:
+	__settings__.openSettings()
+	mode=None
 
+xbmcplugin.setContent(int(sys.argv[1]), 'movies')
+	
 if mode==None:
-	#if not login():
-	#	xbmcplugin.endOfDirectory(int(sys.argv[1]))
-	#else:	
 	get_categories()
 
 elif mode==1:
@@ -367,19 +284,13 @@ elif mode==3:
 	clearSearch()
 elif mode==4:
 	resolve_url(url)
-elif mode==5:
-	fshare_get_video_list(url)
-elif mode==6:
-	fslink_get_video_categories(url)
-elif mode==7:
-	fslink_get_video_list(url)
-elif mode==8:
-	fslink_get_video(url)
 elif mode==9:
-	 searchMenu(url, '', 'file', page)
+	searchMenu(url, '', 'file', page)
 elif mode==10:
-	 __settings__.openSettings()
+	__settings__.openSettings()
 elif mode==12:
 	hdrepo(url, str(query), str(page))
+elif mode==13:
+	sendLink(url)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

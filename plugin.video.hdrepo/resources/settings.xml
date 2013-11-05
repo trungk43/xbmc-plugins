@@ -7,5 +7,6 @@
 		<setting id="username" type="text" label="User name" />
 		<setting id="password" type="text" option="hidden" label="Password" />
 		<setting id="freeAccount" type="bool" label="Using free VIP Account (trial)" default="false" />
+		<setting id="email" type="text" label="Email to get download link" default="" />
 	</category>
 </settings>
