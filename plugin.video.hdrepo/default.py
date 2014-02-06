@@ -5,11 +5,9 @@ import os
 import xbmcplugin
 import xbmcgui
 import xbmcaddon
-import StorageServer
 import urlfetch
 import Cookie
 
-from BeautifulSoup import BeautifulSoup
 try:
 	import json
 except:
