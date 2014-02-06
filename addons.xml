@@ -2,8 +2,8 @@
 <addons>
 <addon id="plugin.video.hdrepo"
        name="HDRepo"
-       version="2.4.4"
-       provider-name="HDRepo">
+       version="2.4.5"
+       provider-name="HDrepo">
     <requires>
 		<import addon="xbmc.python" version="2.1.0" />
 		<import addon="script.module.simple.downloader" version="1.9.4" />
@@ -15,7 +15,7 @@
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
         <language>en</language>
-        <summary lang="en">HDRepo</summary>
+        <summary lang="en">HDrepo</summary>
         <description lang="en">HD repository</description>
     </extension>
 </addon>
