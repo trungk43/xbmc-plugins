@@ -7,6 +7,7 @@ import xbmcgui
 import xbmcaddon
 import urlfetch
 import Cookie
+from BeautifulSoup import BeautifulSoup
 
 try:
 	import json
@@ -17,7 +18,7 @@ __settings__ = xbmcaddon.Addon(id='plugin.video.hdrepo')
 __language__ = __settings__.getLocalizedString
 home = __settings__.getAddonInfo('path')
 icon = xbmc.translatePath( os.path.join( home, 'icon.png' ) )
-saveSearch = __settings__.getSetting('saveSearch')
+saveSearch = 'false'
 freeAccount = __settings__.getSetting('freeAccount')
 email = __settings__.getSetting('email')
 
@@ -188,8 +189,14 @@ def resolve_url(url):
 		headers['Cookie'] = _makeCookieHeader(cookie)
 		urlfetch.get("https://www.fshare.vn/logout.php",headers=headers, follow_redirects=False)
 	else:
-		xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login failed. You must input correct FShare username/pass in Add-on settings', '5000')).encode("utf-8"))	 
-		return
+		if response.status==200:
+			soup = BeautifulSoup(str(response.content), convertEntities=BeautifulSoup.HTML_ENTITIES)		
+			item = soup.find('form', {'name' : 'frm_download'})
+			if item:
+				url = item['action']
+		else:
+			xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Login', 'Login failed. You must input correct FShare username/pass in Add-on settings', '5000')).encode("utf-8"))	 
+			return
 	
 	item = xbmcgui.ListItem(path=url)
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
