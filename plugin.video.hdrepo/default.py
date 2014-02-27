@@ -118,7 +118,7 @@ def hdrepo(provider, param, start=0):
 			#add_dir(item['title'], item['param'], 5, item['thumb'])
 			add_dir(item['title'], item['provider'], 12, item['thumb'], item['param'])
 		else:
-			if item['type'] == 'fshare_file':
+			if item['type'] == 'fshare_file' and item['title'] is not None:
 				add_link(item['date'], item['title'], item['duration'], item['param'], item['thumb'], item['desc'])
 			else:
 				if item['type'] == 'folder':
