@@ -100,6 +100,7 @@ def get_categories():
 	else:
 		add_dir('Search', url, 2, icon, '', 'folder', 0)
 	
+	add_dir('Apple iTunes', 'apple_root', 14, icon, '', 'folder', 0)
 	hdrepo('root','')
 
 	add_dir('Add-on settings', '', 10, icon, query, type, 0)
@@ -129,7 +130,35 @@ def hdrepo(provider, param, start=0):
 							add_dir(item['title'], item['provider'], 12, item['thumb'], item['param'])
 					except:
 						pass
-		
+
+def apple(provider, param, start=0):
+	if provider=='apple_root':
+		add_dir('Genre', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/genres.json', 'folder', 0)
+		add_dir('Action and Adventure', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/action_and_adventure.json', 'folder', 0)
+		add_dir('Comedy', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/comedy.json', 'folder', 0)
+		add_dir('Family', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/family.json', 'folder', 0)
+		add_dir('Fantasy', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/fantasy.json', 'folder', 0)
+		add_dir('Foreign', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/foreign.json', 'folder', 0)
+		add_dir('Horror', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/horror.json', 'folder', 0)
+		add_dir('Musical', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/musical.json', 'folder', 0)
+		add_dir('Romance', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/romance.json', 'folder', 0)
+		add_dir('Science Fiction', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/science_fiction.json', 'folder', 0)
+		add_dir('Thriller', 'apple', 14, icon, 'http://trailers.apple.com/itunes/us/json/thriller.json', 'folder', 0)
+
+	if provider=='apple':
+		result = json.load(urllib.urlopen(param))
+		if not 'data' in result:
+			movies = result;
+		else:
+			movies = result['data'];
+		for item in movies:
+			if item.get('location') is None:
+				add_dir(item['title'], 'search4', 12, 'http://trailers.apple.com/' + item['poster'], item['title'])
+			else:
+				add_dir(item['title'], 'search4', 12, 'http://trailers.apple.com/' + item['poster'], item['title'], thumbnailImage = 'http://trailers.apple.com' + item.get('location') + 'images/background.jpg')
+			#print 'http://trailers.apple.com/' + item['location'] + 'images/background.jpg';
+
+						
 def sendLink(url):
 	data = {'email': email, 'url': url}
 	data = urllib.urlencode(data)
@@ -211,11 +240,12 @@ def add_link(date, name, duration, href, thumb, desc):
 		liz.addContextMenuItems([('Send download link',"XBMC.RunPlugin(%s?mode=%s&url=%s) "%(sys.argv[0],13,href))])
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
 
-def add_dir(name,url,mode,iconimage,query='',type='folder',page=0):
+def add_dir(name,url,mode,iconimage,query='',type='folder',page=0, thumbnailImage=''):
 	u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&query="+str(query)+"&type="+str(type)+"&page="+str(page)#+"&name="+urllib.quote_plus(name)
 	ok=True
-	liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-	liz.setInfo( type="Video", infoLabels={ "Title": name } )
+	liz=xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
+	liz.setInfo( type="Video", infoLabels={ "Title": name} )
+	liz.setProperty('Fanart_Image', thumbnailImage) 
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
 	return ok
 
@@ -297,5 +327,7 @@ elif mode==12:
 	hdrepo(url, str(query), str(page))
 elif mode==13:
 	sendLink(url)
+elif mode==14:
+	apple(url, str(query), str(page))
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

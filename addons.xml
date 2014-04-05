@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addons>
 <addon id="plugin.video.hdrepo"
-       name="HDRepo"
-       version="2.4.8"
-       provider-name="HDRepo">
+       name="HDrepo"
+       version="2.5"
+       provider-name="HDrepo">
     <requires>
 		<import addon="xbmc.python" version="2.1.0" />
 		<import addon="script.module.simple.downloader" version="1.9.4" />
