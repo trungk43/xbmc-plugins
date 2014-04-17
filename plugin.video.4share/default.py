@@ -168,14 +168,14 @@ def resolve_url(url):
   cookie = Cookie.SimpleCookie()
   
   form_fields = {
-   "inputUserName": __settings__.getSetting('username'),
-   "inputPassword": __settings__.getSetting('password')
+   "username": __settings__.getSetting('username'),
+   "password": __settings__.getSetting('password')
   }
 
   form_data = urllib.urlencode(form_fields)
 
   response = urlfetch.fetch(
-    url = 'http://4share.vn/?control=login',
+    url = 'http://up.4share.vn/index/login',
 	method='POST',
     headers = headers,
 	data=form_data,
@@ -185,13 +185,10 @@ def resolve_url(url):
   headers['Cookie'] = _makeCookieHeader(cookie)
   
   response = urlfetch.fetch(url,headers=headers, follow_redirects=True)
-
-  soup = BeautifulSoup(response.content, convertEntities=BeautifulSoup.HTML_ENTITIES)
-  for item in soup.findAll('a'):
-    if item['href'].find('uf=')>0:
-      url=item['href']
-
-  if url.find('uf=')<0:
+  print headers['Cookie']
+  if response.status==302 and response.headers['location'].find('logout.php')<0:
+    url=response.headers['location']
+  else:
     xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Authentication', 'Please check your 4share username/password', '15')).encode("utf-8"))   
     return
 	  
@@ -379,7 +376,8 @@ print "page: "+str(page)
 print "query: "+str(query)
 
 if mode==None:
-	get_categories()
+#	get_categories()
+    fslink_get_video_categories(FSLINK+'/phim-anh.html')
 
 elif mode==1:
     searchMenu(url, '', type, page)
