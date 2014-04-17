@@ -15,8 +15,8 @@
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
         <language>en</language>
-        <summary lang="en">HDrepo</summary>
-        <description lang="en">HD repository</description>
+		<summary lang="en">Xem phim HD trên server fshare</summary>
+		<description lang="en">Add-on cho phép xem trực tiếp phim HD được lưu trữ trên dịch vụ fshare. Website: HDrepo.com</description>
     </extension>
 </addon>
 <addon id="plugin.video.4share"
