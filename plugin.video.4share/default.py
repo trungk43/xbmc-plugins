@@ -1,4 +1,3 @@
-import sys 
 import CommonFunctions as common
 import urllib
 import urllib2
@@ -6,10 +5,8 @@ import os
 import xbmcplugin
 import xbmcgui
 import xbmcaddon
-import xbmcvfs
 import urlfetch
 import Cookie
-#import subtitles
 from BeautifulSoup import BeautifulSoup
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.4share')
@@ -307,7 +304,7 @@ def fslink_get_video_list(url, count):
         for item in items.findAll('a'):
             try:
                 if item.string == '>':
-                    if count < 9:
+                    if count < 0:
                         count = count + 1
                         fslink_get_video_list(FSLINK+item['href'], count)
                     else:
@@ -317,7 +314,7 @@ def fslink_get_video_list(url, count):
     
 #http://phimnet.us/movie/a/8373/Silent_Code_2012.html
 def fslink_get_video(url):
-        soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
+        soup = BeautifulSoup(str(make_request(url)), convertEntities=BeautifulSoup.HTML_ENTITIES)
         items = soup.findAll('textarea')
 
         for item in items:
