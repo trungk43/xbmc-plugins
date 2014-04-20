@@ -12,6 +12,7 @@ __settings__ = xbmcaddon.Addon(id='plugin.video.hdplay')
 __language__ = __settings__.getLocalizedString
 home = __settings__.getAddonInfo('path')
 icon = xbmc.translatePath( os.path.join( home, 'icon.png' ) )
+thumbnails = xbmc.translatePath( os.path.join( home, 'thumbnails\\' ) )
 
 def _makeCookieHeader(cookie):
       cookieHeader = ""
@@ -38,13 +39,26 @@ def make_request(url, headers=None):
 
 
 def get_categories():
-    add_link('', 'AXN HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=AXNHD/AXNHD_live.smil', '', '')
-    add_link('', 'Star Movie HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=StarMovieHD/StarMovieHD_live.smil', '', '')
-    add_link('', 'HBO HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=VTCHD3/VTCHD3_live.smil', '', '')
-    add_link('', 'VTC HD3', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=HBOHD/HBOHD_live.smil', '', '')
-    add_link('', 'VTC HD1', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=VTCHD1/VTCHD1_live.smil', '', '')
-    add_link('', 'VTV3 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV3HD/VTV3HD_live.smil/playlist.m3u8', '', '')
-    add_link('', 'VTV6 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV6HD/VTV6HD_live.smil/playlist.m3u8', '', '')
+    add_link('', 'AXN HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=AXNHD/AXNHD_live.smil', thumbnails + 'AXN HD.jpg', '')
+    add_link('', 'Star Movies HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=StarMovieHD/StarMovieHD_live.smil', thumbnails + 'Star_Movies_HD_Asia.jpg', '')
+    add_link('', 'HBO HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=VTCHD3/VTCHD3_live.smil', thumbnails + 'HBO HD.jpg', '')
+    add_link('', 'VTC HD3', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=HBOHD/HBOHD_live.smil', thumbnails + 'VTC HD3.jpg', '')
+    add_link('', 'VTC HD1', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=VTCHD1/VTCHD1_live.smil', thumbnails + 'VTC HD1.jpg', '')
+    add_link('', 'VTV3 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV3HD/VTV3HD_live.smil/playlist.m3u8', thumbnails + 'VTV3 HD.jpg', '')
+    add_link('', 'VTV6 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV6HD/VTV6HD_live.smil/playlist.m3u8', thumbnails + 'VTV6.jpg', '')
+    add_link('', 'FOX SPORTS PLUS HD', 0, 'http://113.160.49.34/lives/origin03/foxhd.isml/foxhd.m3u8', thumbnails + 'FOX SPORTS PLUS HD.jpg', '')
+    add_link('', 'HTV7 HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv7.720p.stream/playlist.m3u8', thumbnails + 'HTV7 HD.png', '')
+    add_link('', 'HTV9 HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv9.720p.stream/playlist.m3u8', thumbnails + 'htv9hd.png', '')
+    add_link('', 'Thuan Viet HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/thuan_viet.720p.stream/playlist.m3u8', thumbnails + 'thuanviet_hd.png', '')
+    add_link('', 'HTVC Phim HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htvc_movies.720p.stream/playlist.m3u8', thumbnails + 'htvc_hd.png', '')
+    #add_link('', 'HBO HD', 0, '', '', '')
+    #add_link('', 'HBO HD', 0, '', '', '')
+    #add_link('', 'HBO HD', 0, '', '', '')
+    #add_link('', 'HBO HD', 0, '', '', '')
+    #add_link('', 'HBO HD', 0, '', '', '')
+    #add_link('', 'HBO HD', 0, '', '', '')
+    #add_link('', 'HBO HD', 0, '', '', '')
+    #add_link('', 'HBO HD', 0, '', '', '')
     #add_link('', 'HBO HD', 0, '', '', '')
     #add_link('', 'HBO HD', 0, '', '', '')
 		
