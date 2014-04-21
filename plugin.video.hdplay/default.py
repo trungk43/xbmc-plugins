@@ -40,6 +40,7 @@ def make_request(url, headers=None):
 
 def get_categories():
     add_link('', 'AXN HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=AXNHD/AXNHD_live.smil', thumbnails + 'AXN HD.jpg', '')
+    add_link('', 'AXN HD (Server 2)', 0, 'http://203.162.235.26/lives/origin03/axnhd.isml/axnhd-2096k.m3u8', thumbnails + 'AXN HD.jpg', '')
     add_link('', 'Star Movies HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=StarMovieHD/StarMovieHD_live.smil', thumbnails + 'Star_Movies_HD_Asia.jpg', '')
     add_link('', 'HBO HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=VTCHD3/VTCHD3_live.smil', thumbnails + 'HBO-HD.png', '')
     add_link('', 'ITV HD', 0, 'http://hlscache.fptplay.net.vn/live/itvHD_2500.stream/playlist.m3u8', thumbnails + 'ITV-HD.jpg', '')
@@ -53,9 +54,9 @@ def get_categories():
     add_link('', 'HTV9 HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv9.720p.stream/playlist.m3u8', thumbnails + 'htv9hd.png', '')
     add_link('', 'Thuan Viet HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/thuan_viet.720p.stream/playlist.m3u8', thumbnails + 'thuanviet_hd.png', '')
     add_link('', 'HTVC Phim HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htvc_movies.720p.stream/playlist.m3u8', thumbnails + 'htvc_hd.png', '')
-    #add_link('', 'HBO HD', 0, '', '', '')
-    #add_link('', 'HBO HD', 0, '', '', '')
-    #add_link('', 'HBO HD', 0, '', '', '')
+    add_link('', 'FBNC HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/fbnc.720p.stream/playlist.m3u8', thumbnails + 'FBNC HD.png', '')
+    #add_link('', 'NHK SD', 0, 'http://113.160.49.34/lives/origin03/nhksd.isml/nhksd.m3u8', thumbnails + 'nhkworld.png', '')
+    #add_link('', 'VTV1HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV1/VTV1_live.smil/playlist.m3u8', '', '')
     #add_link('', 'HBO HD', 0, '', '', '')
     #add_link('', 'HBO HD', 0, '', '', '')
     #add_link('', 'HBO HD', 0, '', '', '')
