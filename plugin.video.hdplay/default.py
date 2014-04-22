@@ -1,4 +1,4 @@
-import CommonFunctions as common
+﻿import CommonFunctions as common
 import urllib
 import urllib2
 import os
@@ -37,7 +37,6 @@ def make_request(url, headers=None):
                 print 'Reason: ', e.reason
             if hasattr(e, 'code'):
                 print 'We failed with error code - %s.' % e.code
-
 def get_fpt():
   content = make_request('http://play.fpt.vn/livetv/')
   soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -49,7 +48,48 @@ def get_fpt():
         add_link('', item['channel'], 0, 'http://play.fpt.vn' + item['href'], img['src'], '')
       except:
         pass
-				
+
+def get_fpt_tvshow():
+  content = make_request('http://play.fpt.vn/the-loai/tvshow')
+  soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+  items = soup.findAll('a')
+  for item in items:
+    href = item.get('href')
+    if href is not None and 'the-loai-more' in href and 'Xem' not in item.text:
+      try:
+        add_dir(item.text, 'http://play.fpt.vn' + href, 8, thumbnails + 'fptplay.jpg', query, type, 0)
+      except:
+        pass
+
+def get_fpt_tvshow_cat(url):
+  content = make_request(url)
+  soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+  if url is not None and '/Video/' not in url:
+    items = soup.findAll('div', {'class' : 'col'})
+    for item in items:
+      img = item.a.img['src']
+      href = item.a['href']
+      text = item.a.img['alt']	
+      try:
+        add_dir(text, 'http://play.fpt.vn' + href, 8, img, '', '', 0)
+      except:
+        pass
+
+  items = soup.find('ul', {'class' : 'pagination pagination-sm'}).findAll('a')
+  for item in items:
+    href = ''
+    href = item.get('href')
+    if href is not None and 'the-loai-more' in href and 'Xem' not in item.text:
+      try:
+        add_dir('Trang ' + item.text, 'http://play.fpt.vn' + href, 8, thumbnails + 'fptplay.jpg', query, type, 0)
+      except:
+        pass
+    if href is not None and '/Video/' in href:
+      try:
+        add_link('', u'Tập ' + item.text, 0, 'http://play.fpt.vn' + href, thumbnails + 'fptplay.jpg', '')
+      except:
+        pass
+	  
 def get_htv():
   content = make_request('http://www.htvonline.com.vn/livetv')
   soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -89,7 +129,8 @@ def get_categories():
     #add_link('', 'HBO HD', 0, '', '', '')
     #http://scache.fptplay.net.vn/live/htvcplusHD_1000.stream/manifest.f4m
     add_dir('HTVOnline', url, 5, thumbnails + 'HTV.png', query, type, 0)
-    add_dir('FPTPlay', url, 6, thumbnails + 'fptplay.jpg', query, type, 0)
+    add_dir('FPTPlay - TV', url, 6, thumbnails + 'fptplay.jpg', query, type, 0)
+    add_dir('FPTPlay - TVShow', url, 7, thumbnails + 'fptplay.jpg', query, type, 0)
 
 def searchMenu(url, query = '', type='f', page=0):
   add_dir('New Search', url, 2, icon, query, type, 0)
@@ -100,6 +141,17 @@ def searchMenu(url, query = '', type='f', page=0):
     add_dir(item, url, 2, icon, item, type, 0)
 
 def resolve_url(url):
+  if 'play.fpt.vn/Video' in url:
+    content = make_request(url)
+    soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+    for line in content.splitlines():
+      s = line.strip()
+      if s.startswith('"<source src='):
+        start = s.index('\'')+1
+        end = s.index('\'', start+1)
+        url = s[start:end]
+        break
+
   if 'play.fpt.vn' in url:
     content = make_request(url)
     soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -227,6 +279,10 @@ elif mode==5:
     get_htv()
 elif mode==6:
     get_fpt()
+elif mode==7:
+    get_fpt_tvshow()
+elif mode==8:
+    get_fpt_tvshow_cat(url)
 elif mode==11:
    __settings__.openSettings()
    
