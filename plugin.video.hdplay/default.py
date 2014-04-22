@@ -38,6 +38,25 @@ def make_request(url, headers=None):
             if hasattr(e, 'code'):
                 print 'We failed with error code - %s.' % e.code
 def get_fpt():
+  add_link('', 'Fashion TV', 0, 'http://hlscache.fptplay.net.vn/sopchannel/fashiontv.stream/playlist.m3u8', '', '')
+  add_link('', 'MTV', 0, 'http://hlscache.fptplay.net.vn/sopchannel/mtvviet.stream/playlist.m3u8', '', '')
+  add_link('', 'Star World', 0, 'http://hlscache.fptplay.net.vn/sopchannel/starworld.stream/playlist.m3u8', '', '')
+  add_link('', 'Cinemax', 0, 'http://hlscache.fptplay.net.vn/sopchannel/cinemax.stream/playlist.m3u8', '', '')
+  add_link('', 'Discovery Channel', 0, 'http://hlscache.fptplay.net.vn/sopchannel/discoverychannel.stream/playlist.m3u8', '', '')
+  add_link('', 'Channel V', 0, 'http://hlscache.fptplay.net.vn/sopchannel/channelv.stream/playlist.m3u8', '', '')
+  add_link('', 'Cartoon Network', 0, 'http://hlscache.fptplay.net.vn/sopchannel/cartoonnetwork.stream/playlist.m3u8', '', '')
+  add_link('', 'Animal Planet', 0, 'http://hlscache.fptplay.net.vn/sopchannel/animalplanet.stream/playlist.m3u8', '', '')
+  add_link('', 'National Geographic', 0, 'http://hlscache.fptplay.net.vn/sopchannel/nationalgeographic.stream/playlist.m3u8', '', '')
+  add_link('', 'National Geographic Adventure', 0, 'http://hlscache.fptplay.net.vn/sopchannel/nationalgeographicadventure.stream/playlist.m3u8', '', '')
+  add_link('', 'Nation Geographic Wild', 0, 'http://hlscache.fptplay.net.vn/sopchannel/nationalgeographicwild.stream/playlist.m3u8', '', '')
+  add_link('', 'True Visions', 0, 'http://hlscache.fptplay.net.vn/sopchannel/truevisions.stream/playlist.m3u8', '', '')
+  add_link('', 'Net TV Sport 1', 0, 'http://hlscache.fptplay.net.vn/event/sport1/playlist.m3u8', '', '')
+  add_link('', 'Net TV Sport 2', 0, 'http://hlscache.fptplay.net.vn/event/sport2/playlist.m3u8', '', '')
+  add_link('', 'Net TV Sport 3', 0, 'http://hlscache.fptplay.net.vn/event/sport3/playlist.m3u8', '', '')
+  add_link('', 'Net TV Sport 4', 0, 'http://hlscache.fptplay.net.vn/event/sport4/playlist.m3u8', '', '')
+  add_link('', 'Star Sport', 0, 'http://hlscache.fptplay.net.vn/sopchannel/starsports.stream/playlist.m3u8', '', '')
+  add_link('', 'FOX Sport', 0, 'http://hlscache.fptplay.net.vn/sopchannel/foxsports.stream/playlist.m3u8', '', '')
+
   content = make_request('http://play.fpt.vn/livetv/')
   soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
   items = soup.findAll('a', {'class' : 'channel_link'})
@@ -49,8 +68,8 @@ def get_fpt():
       except:
         pass
 
-def get_fpt_tvshow():
-  content = make_request('http://play.fpt.vn/the-loai/tvshow')
+def get_fpt_other(url):
+  content = make_request(url)
   soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
   items = soup.findAll('a')
   for item in items:
@@ -125,7 +144,6 @@ def get_categories():
     #add_link('', 'NHK SD', 0, 'http://113.160.49.34/lives/origin03/nhksd.isml/nhksd.m3u8', thumbnails + 'nhkworld.png', '')
     #add_link('', 'VTV1HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV1/VTV1_live.smil/playlist.m3u8', '', '')
     #add_link('', 'vtc3 hd', 0, 'http://203.162.235.26/lives/origin03/vtc3hd.isml/vtc3hd-2096k.m3u8', '', '')
-    #add_link('', 'HBO HD', 0, '', '', '')
     #add_link('', 'HBO HD', 0, '', '', '')
     #http://scache.fptplay.net.vn/live/htvcplusHD_1000.stream/manifest.f4m
     add_dir('HTVOnline', url, 5, thumbnails + 'htv.jpg', query, type, 0)
@@ -280,7 +298,10 @@ elif mode==5:
 elif mode==6:
     get_fpt()
 elif mode==7:
-    get_fpt_tvshow()
+    get_fpt_other('http://play.fpt.vn/the-loai/tvshow')
+    #get_fpt_other('http://play.fpt.vn/the-loai/sport')
+    #get_fpt_other('http://play.fpt.vn/the-loai/music')
+    #get_fpt_other('http://play.fpt.vn/the-loai/general')
 elif mode==8:
     get_fpt_tvshow_cat(url)
 elif mode==11:
