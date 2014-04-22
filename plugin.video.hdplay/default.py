@@ -6,6 +6,7 @@ import xbmcplugin
 import xbmcgui
 import xbmcaddon
 import urlfetch
+import re
 from BeautifulSoup import BeautifulSoup
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.hdplay')
@@ -37,6 +38,29 @@ def make_request(url, headers=None):
             if hasattr(e, 'code'):
                 print 'We failed with error code - %s.' % e.code
 
+def get_fpt():
+  content = make_request('http://play.fpt.vn/livetv/')
+  soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+  items = soup.findAll('a', {'class' : 'channel_link'})
+  for item in items:
+    img = item.find('img')
+    if img is not None:
+      try:
+        add_link('', item['channel'], 0, 'http://play.fpt.vn' + item['href'], img['src'], '')
+      except:
+        pass
+				
+def get_htv():
+  content = make_request('http://www.htvonline.com.vn/livetv')
+  soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+  items = soup.findAll('a', {'class' : 'mh-grids5-img'})
+  for item in items:
+    img = item.find('img')
+    if img is not None:
+      try:
+        add_link('', item['title'], 0, item['href'], img['src'], '')
+      except:
+        pass
 
 def get_categories():
     add_link('', 'AXN HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=AXNHD/AXNHD_live.smil', thumbnails + 'AXN HD.png', '')
@@ -64,6 +88,8 @@ def get_categories():
     #add_link('', 'HBO HD', 0, '', '', '')
     #add_link('', 'HBO HD', 0, '', '', '')
     #http://scache.fptplay.net.vn/live/htvcplusHD_1000.stream/manifest.f4m
+    add_dir('HTVOnline', url, 5, thumbnails + 'HTV.png', query, type, 0)
+    add_dir('FPTPlay', url, 6, thumbnails + 'fptplay.jpg', query, type, 0)
 
 def searchMenu(url, query = '', type='f', page=0):
   add_dir('New Search', url, 2, icon, query, type, 0)
@@ -74,7 +100,27 @@ def searchMenu(url, query = '', type='f', page=0):
     add_dir(item, url, 2, icon, item, type, 0)
 
 def resolve_url(url):
+  if 'play.fpt.vn' in url:
+    content = make_request(url)
+    soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+    item = soup.find('div', {'id' : 'bitrate-tag'})
+    url = item['highbitrate-link']
+    content = make_request(url)
+    for line in content.splitlines():
+      s = line.strip()
+      if s.startswith('<id>'):
+        start = s.index('<id>')+4
+        end = s.index('<', start+1)
+        url = url.replace('manifest.f4m',s[start:end])
+        url = 'http://scache.fptplay.net.vn/live/' + s[start:end] + '/playlist.m3u8'
+        break
 
+  if 'htvonline' in url:
+    content = make_request(url)
+    for line in content.splitlines():
+      if line.strip().startswith('file: '):
+        url = line.strip().replace('file: ', '').replace('"', '').replace(',', '')
+        break
   if 'GetChannelStream' in url:
     content = make_request(url)
     url = content.replace("\"", "")
@@ -163,7 +209,7 @@ print "page: "+str(page)
 print "query: "+str(query)
 
 if mode==None:
-	get_categories()
+    get_categories()
 #    fslink_get_video_categories(FSLINK+'/phim-anh.html')
 
 elif mode==1:
@@ -177,6 +223,10 @@ elif mode==3:
 
 elif mode==4:
     resolve_url(url)
+elif mode==5:
+    get_htv()
+elif mode==6:
+    get_fpt()
 elif mode==11:
    __settings__.openSettings()
    
