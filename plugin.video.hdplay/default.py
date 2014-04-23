@@ -23,10 +23,10 @@ def _makeCookieHeader(cookie):
 
 def make_request(url, headers=None):
         if headers is None:
-            headers2 = {'User-agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
+            headers = {'User-agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
                        'Referer' : 'http://www.google.com'}
         try:
-            req = urllib2.Request(url,headers=headers2)
+            req = urllib2.Request(url,headers=headers)
             f = urllib2.urlopen(req)
             body=f.read()
             return body
@@ -68,6 +68,59 @@ def get_fpt():
       except:
         pass
 
+def get_zui(url = None):
+  if url == '':
+    content = make_request('http://zui.vn')
+    soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+    items = soup.find('div',{'class' : 'span8 visible-desktop visible-tablet'}).findAll('a')
+    for item in items:
+      href = item.get('href')
+      if href is not None:
+        try:
+          add_dir(item.text, href, 9, thumbnails + 'zui.png', query, type, 0)
+        except:
+          pass
+    return
+  if 'the-loai' in url or 'phim-' in url:  
+    content = make_request(url)
+    soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+    items = soup.findAll('div',{'class' : 'poster'})
+    for item in items:
+      a = item.find('a')
+      href = a.get('href')
+      if href is not None:
+        try:
+          if 'phim-bo' in url:
+            add_dir(a.get('title'), href, 9, a.img['src'], '', '', 0)
+          else:  
+            add_link('', a.get('title'), 0, href, a.img['src'], '')
+        except:
+          pass
+    items = soup.find('div',{'class' : 'pagination pagination-right'})
+    if items is not None:
+      for item in items.findAll('a'):
+        a = item
+        href = a.get('href')
+        if href is not None:
+          try:
+            add_dir(a.get('title'), href, 9, thumbnails + 'zui.png', '', '', 0)
+          except:
+            pass
+  else:
+    content = make_request(url)
+    soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+    items = soup.find('ul',{'class' : 'movie_chapter'})
+    if items is not None:
+      for item in items.findAll('a'):
+        a = item
+        href = a.get('href')
+        if href is not None:
+          try:
+            add_link('', u'Tập ' + a.text, 0, 'http://zui.vn/' + href, thumbnails + 'zui.png', '')
+            #add_dir(u'Tập ' + a.text, 'http://zui.vn/' + href, 9, thumbnails + 'zui.png', '', '', 0)
+          except:
+            pass
+  
 def get_fpt_other(url):
   content = make_request(url)
   soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -149,6 +202,7 @@ def get_categories():
     add_dir('HTVOnline', url, 5, thumbnails + 'htv.jpg', query, type, 0)
     add_dir('FPTPlay - TV', url, 6, thumbnails + 'fptplay_logo.jpg', query, type, 0)
     add_dir('FPTPlay - TVShow', url, 7, thumbnails + 'fptplay_logo.jpg', query, type, 0)
+    add_dir('ZUI.VN', url, 9, thumbnails + 'zui.png', query, type, 0)
 
 def searchMenu(url, query = '', type='f', page=0):
   add_dir('New Search', url, 2, icon, query, type, 0)
@@ -159,6 +213,23 @@ def searchMenu(url, query = '', type='f', page=0):
     add_dir(item, url, 2, icon, item, type, 0)
 
 def resolve_url(url):
+
+  if 'zui.vn' in url:
+    headers2 = {'User-agent' : 'Android / Firefox 26: Mozilla/5.0 (Android; Mobile; rv:26.0) Gecko/26.0 Firefox/26.0',
+                       'Referer' : 'http://www.google.com'}
+    content = make_request(url, headers2)
+    soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+    for line in content.splitlines():
+      s = line.strip()
+      if s.startswith('movie_play_chapter'):
+        #movie_play_chapter('mediaplayer', '1', 'rtmp://103.28.37.89:1935/vod3/mp4:/phimle/Vikingdom.2013.720p.WEB-DL.H264-PHD.mp4', '/uploads/movie_view/5c65563b1ce8d106c013.jpg', 'http://zui.vn/subtitle/Vikingdom.2013.720p.WEB-DL.H264-PHD.srt');
+        matchObj = re.match( r'[^\']*\'([^\']*)\', \'([^\']*)\', \'([^\']*)\', \'([^\']*)\', \'([^\']*)\'', s, re.M|re.I)
+        url = matchObj.group(3)
+        xbmc.Player().play(url)
+        xbmc.Player().setSubtitles(matchObj.group(5))
+        return
+        break
+
   if 'play.fpt.vn/Video' in url:
     content = make_request(url)
     soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -203,7 +274,10 @@ def add_link(date, name, duration, href, thumb, desc):
     u=sys.argv[0]+"?url="+urllib.quote_plus(href)+"&mode=4"
     liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=thumb)
     liz.setInfo(type="Video", infoLabels={ "Title": name, "Plot": description, "Duration": duration})
-    liz.setProperty('IsPlayable', 'true')
+    if 'zui' in href:
+      liz.setProperty('IsPlayable', 'false')
+    else:
+      liz.setProperty('IsPlayable', 'true')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
 
 
@@ -304,6 +378,8 @@ elif mode==7:
     #get_fpt_other('http://play.fpt.vn/the-loai/general')
 elif mode==8:
     get_fpt_tvshow_cat(url)
+elif mode==9:
+    get_zui(url)
 elif mode==11:
    __settings__.openSettings()
    
