@@ -87,10 +87,11 @@ def get_zui(url = None):
     items = soup.findAll('div',{'class' : 'poster'})
     for item in items:
       a = item.find('a')
+      span = item.find('span',{'class' : 'type'})
       href = a.get('href')
       if href is not None:
         try:
-          if 'phim-bo' in url:
+          if span is not None:
             add_dir(a.get('title'), href, 9, a.img['src'], '', '', 0)
           else:  
             add_link('', a.get('title'), 0, href, a.img['src'], '')
