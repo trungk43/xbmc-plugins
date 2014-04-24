@@ -216,7 +216,7 @@ def searchMenu(url, query = '', type='f', page=0):
 def resolve_url(url):
 
   if 'zui.vn' in url:
-    headers2 = {'User-agent' : 'Android / Firefox 26: Mozilla/5.0 (Android; Mobile; rv:26.0) Gecko/26.0 Firefox/26.0',
+    headers2 = {'User-agent' : 'iOS / Safari 7: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B554a Safari/9537.53',
                        'Referer' : 'http://www.google.com'}
     content = make_request(url, headers2)
     soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
