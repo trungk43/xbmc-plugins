@@ -7,6 +7,7 @@ import xbmcgui
 import xbmcaddon
 import urlfetch
 import re
+import json
 from BeautifulSoup import BeautifulSoup
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.hdplay')
@@ -67,7 +68,31 @@ def get_fpt():
         add_link('', item['channel'], 0, 'http://play.fpt.vn' + item['href'], img['src'], '')
       except:
         pass
-
+#add_dir(name,url,mode,iconimage,query='',type='f',page=0):
+def get_vtc_movies(url, query='25', type='', page=0):
+  if url == '':
+    content = make_request('http://117.103.206.21:88/Movie/GetMovieGenres?device=4')
+    result = json.loads(content)
+    for item in result:
+      add_dir(item["Name"], 'http://117.103.206.21:88/Movie/GetMoviesByGenre?device=4&genreid=' + str(item["ID"]) + '&start=0&length=25', 11, '', '25', str(item["ID"]), 0)
+  if 'GetMoviesByGenre' in url:
+    content = make_request(url)
+    result = json.loads(content)
+    for item in result:
+      add_link('', item["Title"], 0, 'http://117.103.206.21:88/Movie/GetMovieStream?device=4&path=' + item["MovieUrls"][0]["Path"].replace('SD', 'HD'), item["Thumbnail3"], item["SummaryShort"])
+    add_dir('Next', 'http://117.103.206.21:88/Movie/GetMoviesByGenre?device=4&genreid=' + type + '&start=' + str(int(query)+page) + '&length=' + str(query), 11, '', str(int(query)+page), type, page)
+  
+def get_vtc(url = None):
+  content = make_request(url)
+	
+  result = json.loads(content)
+  for item in result:
+    path = item["ChannelUrls"][0]["Path"]
+    if 'http' in path:
+      add_link('', item["Name"], 0, item["ChannelUrls"][0]["Path"], item["Thumbnail2"], '')
+    else:
+      add_link('', item["Name"], 0, "http://117.103.206.21:88/channel/GetChannelStream?device=4&path=" + item["ChannelUrls"][0]["Path"], item["Thumbnail2"], '')
+		
 def get_zui(url = None):
   if url == '':
     content = make_request('http://zui.vn')
@@ -176,16 +201,20 @@ def get_htv():
         pass
 
 def get_categories():
-    add_link('', 'AXN HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=AXNHD/AXNHD_live.smil', thumbnails + 'AXN HD.jpg', '')
-    add_link('', 'Star Movies HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=StarMovieHD/StarMovieHD_live.smil', thumbnails + 'StarMoviesHD.jpg', '')
-    add_link('', 'HBO HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=VTCHD3/VTCHD3_live.smil', thumbnails + 'HBO-HD.png', '')
+    add_link('', 'AXN HD', 0, 'http://203.162.235.26/lives/origin03/axnhd.isml/axnhd-2096k.m3u8', thumbnails + 'AXN HD.jpg', '')
+    add_link('', 'Star Movies HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?device=4&path=StarMovieHD/StarMovieHD_live.smil', thumbnails + 'StarMoviesHD.jpg', '')
+    add_link('', 'HBO HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?device=4&path=VTCHD3/VTCHD3_live.smil', thumbnails + 'HBO-HD.png', '')
+    add_link('', 'Fashion HD', 0, 'http://203.162.235.26/lives/origin03/fashionhd.isml/fashionhd-2096k.m3u8', thumbnails + 'fashion hd.jpg', '')
+    add_link('', 'Discovery HD', 0, 'http://203.162.235.26/lives/origin03/discoveryhd.isml/discoveryhd-2096k.m3u8', thumbnails + 'discovery hd.jpg', '')
     add_link('', 'ITV HD', 0, 'http://203.162.235.26/lives/origin03/itvhd.isml/itvhd-2096k.m3u8', thumbnails + 'ITV HD.jpg', '')
     add_link('', 'VTC HD1', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=VTCHD1/VTCHD1_live.smil', thumbnails + 'VTC HD1.jpg', '')
     add_link('', 'VTC HD2', 0, 'http://203.162.235.26/lives/origin03/vtchd2hd.isml/vtchd2hd-2096k.m3u8', thumbnails + 'VTC HD2.jpg', '')
     add_link('', 'VTC HD3', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=HBOHD/HBOHD_live.smil', thumbnails + 'VTC-HD3.jpg', '')
     add_link('', 'VTV3 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV3HD/VTV3HD_live.smil/playlist.m3u8', thumbnails + 'VTV3 HD.jpg', '')
     add_link('', 'VTV6 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV6HD/VTV6HD_live.smil/playlist.m3u8', thumbnails + 'VTV6 HD.jpg', '')
-    add_link('', 'FOX SPORTS PLUS HD', 0, 'http://113.160.49.34/lives/origin03/foxhd.isml/foxhd.m3u8', thumbnails + 'fox_sports_hd.jpg', '')
+    add_link('', 'BongdaTV HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/BONGDATV_HD_3000.stream/playlist.m3u8', thumbnails + 'Cab16-BongdaHD.jpg', '')
+    add_link('', 'ThethaoTV HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/THETHAO_HD_3000.stream/playlist.m3u', thumbnails + 'TheThaoTVHD.jpg', '')
+    add_link('', 'FOX SPORTS PLUS HD', 0, 'http://203.162.235.26/lives/origin03/foxhd.isml/foxhd.m3u8', thumbnails + 'fox_sports_hd.jpg', '')
     add_link('', 'HTV2', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv2.720p.stream/playlist.m3u8', thumbnails + 'HTV2 HD.jpg', '')
     add_link('', 'HTV7 HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv7.720p.stream/playlist.m3u8', thumbnails + 'HTV7 HD.jpg', '')
     add_link('', 'HTV9 HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv9.720p.stream/playlist.m3u8', thumbnails + 'HTV9 HD.jpg', '')
@@ -193,14 +222,17 @@ def get_categories():
     add_link('', 'HTVC Phim HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htvc_movies.720p.stream/playlist.m3u8', thumbnails + 'HTVC MOVIE HD.jpg', '')
     add_link('', 'HTVC+ HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htvc_plus.720p.stream/playlist.m3u8', thumbnails + 'HTVCHD.jpg', '')
     add_link('', 'FBNC HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/fbnc.720p.stream/playlist.m3u8', thumbnails + 'FBNC.jpg', '')
-    add_link('', 'AXN HD (Server 2)', 0, 'http://203.162.235.26/lives/origin03/axnhd.isml/axnhd-2096k.m3u8', thumbnails + 'AXN HD.jpg', '')
-    add_link('', 'HBO HD (Server 2)', 0, 'http://117.103.224.75:1935/live/_definst_/VTCHD3/smil:VTCHD3_live.smil/chunklist-b3100000.m3u8', thumbnails + 'HBO-HD.png', '')
+    add_link('', 'AXN HD (Server 2)', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=AXNHD/AXNHD_live.smil', thumbnails + 'AXN HD.jpg', '')
+    add_link('', 'HBO HD (Server 2)', 0, 'http://203.162.235.26/lives/origin03/hbohd.isml/hbohd-2096k.m3u8', thumbnails + 'HBO-HD.png', '')
+    add_link('', 'FOX SPORTS PLUS HD (Server 2)', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/FOX_SPORT_HD_3000.stream/playlist.m3u8', thumbnails + 'fox_sports_hd.jpg', '')
     #add_link('', 'NHK SD', 0, 'http://113.160.49.34/lives/origin03/nhksd.isml/nhksd.m3u8', thumbnails + 'nhkworld.png', '')
     #add_link('', 'VTV1HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV1/VTV1_live.smil/playlist.m3u8', '', '')
     #add_link('', 'vtc3 hd', 0, 'http://203.162.235.26/lives/origin03/vtc3hd.isml/vtc3hd-2096k.m3u8', '', '')
     #add_link('', 'HBO HD', 0, '', '', '')
     #http://scache.fptplay.net.vn/live/htvcplusHD_1000.stream/manifest.f4m
     add_dir('HTVOnline', url, 5, thumbnails + 'htv.jpg', query, type, 0)
+    add_dir('VTCPlay - TV', 'http://117.103.206.21:88/Channel/GetChannels?device=4', 10, thumbnails + 'vtcplay.jpg', query, type, 0)
+    #add_dir('VTCPlay - Movies', '', 11, thumbnails + 'vtcplay.jpg', query, type, 0)
     add_dir('FPTPlay - TV', url, 6, thumbnails + 'fptplay_logo.jpg', query, type, 0)
     add_dir('FPTPlay - TVShow', url, 7, thumbnails + 'fptplay_logo.jpg', query, type, 0)
     add_dir('ZUI.VN', url, 9, thumbnails + 'zui.png', query, type, 0)
@@ -214,7 +246,6 @@ def searchMenu(url, query = '', type='f', page=0):
     add_dir(item, url, 2, icon, item, type, 0)
 
 def resolve_url(url):
-
   if 'zui.vn' in url:
     headers2 = {'User-agent' : 'iOS / Safari 7: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B554a Safari/9537.53',
                        'Referer' : 'http://www.google.com'}
@@ -263,7 +294,7 @@ def resolve_url(url):
       if line.strip().startswith('file: '):
         url = line.strip().replace('file: ', '').replace('"', '').replace(',', '')
         break
-  if 'GetChannelStream' in url:
+  if 'GetChannelStream' in url or 'GetMovieStream' in url:
     content = make_request(url)
     url = content.replace("\"", "")
   item = xbmcgui.ListItem(path=url)
@@ -381,7 +412,9 @@ elif mode==8:
     get_fpt_tvshow_cat(url)
 elif mode==9:
     get_zui(url)
+elif mode==10:
+    get_vtc(url)
 elif mode==11:
-   __settings__.openSettings()
+    get_vtc_movies(url, query, type, page)
    
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
