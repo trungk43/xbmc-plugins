@@ -150,7 +150,7 @@ def get_zui(url = None):
 		)
         soup = BeautifulSoup(str(response.content), convertEntities=BeautifulSoup.HTML_ENTITIES)
         for item in soup.findAll('a'):
-          add_link('', u'Tập ' + a.text, 0, 'http://zui.vn/' + a['href'], thumbnails + 'zui.png', '')
+          add_link('', u'Tập ' + item.text, 0, 'http://zui.vn/' + item['href'], thumbnails + 'zui.png', '')
       return
 	
     items = soup.find('ul',{'class' : 'movie_chapter'})
@@ -218,6 +218,18 @@ def get_htv():
       except:
         pass
 
+def get_sctv(url):
+  content = make_request('http://tv24.vn/LiveTV/Tivi_Truc_Tuyen_SCTV_VTV_HTV_THVL_HBO_STARMOVIES_VTC_VOV_BongDa_Thethao_Hai_ThoiTrang_Phim_PhimHongKong.html')
+  soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+  items = soup.findAll('a')
+  for item in items:
+    img = item.find('img')
+    if img is not None and 'LiveTV' in item['href']:
+      try:
+        add_link('', item['href'], 0, 'http://tv24.vn' + item['href'], img['src'], '')
+      except:
+        pass
+		
 def get_categories():
     add_link('', 'AXN HD', 0, 'http://203.162.235.26/lives/origin03/axnhd.isml/axnhd-2096k.m3u8', thumbnails + 'AXN HD.jpg', '')
     add_link('', 'Star Movies HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?device=4&path=StarMovieHD/StarMovieHD_live.smil', thumbnails + 'StarMoviesHD.jpg', '')
@@ -230,9 +242,9 @@ def get_categories():
     add_link('', 'VTC HD3', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=HBOHD/HBOHD_live.smil', thumbnails + 'VTC-HD3.jpg', '')
     add_link('', 'VTV3 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV3HD/VTV3HD_live.smil/playlist.m3u8', thumbnails + 'VTV3 HD.jpg', '')
     add_link('', 'VTV6 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV6HD/VTV6HD_live.smil/playlist.m3u8', thumbnails + 'VTV6 HD.jpg', '')
-    add_link('', 'BongdaTV HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/BONGDATV_HD_3000.stream/playlist.m3u8', thumbnails + 'Cab16-BongdaHD.jpg', '')
-    add_link('', 'ThethaoTV HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/THETHAO_HD_3000.stream/playlist.m3u8', thumbnails + 'TheThaoTVHD.jpg', '')
-    #add_link('', 'SCTV Thethao HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/SCTV_THETHAO_HD_3000.stream/playlist.m3u8', thumbnails + 'SCTV-TheThaoHD.jpg', '')
+    #add_link('', 'BongdaTV HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/BONGDATV_HD_3000.stream/playlist.m3u8', thumbnails + 'Cab16-BongdaHD.jpg', '')
+    #add_link('', 'ThethaoTV HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/THETHAO_HD_3000.stream/playlist.m3u8', thumbnails + 'TheThaoTVHD.jpg', '')
+    add_link('', 'SCTV Thethao HD', 0, 'http://tv24.vn/LiveTV/22/', thumbnails + 'SCTV-TheThaoHD.jpg', '')
     add_link('', 'FOX SPORTS PLUS HD', 0, 'http://203.162.235.26/lives/origin03/foxhd.isml/foxhd.m3u8', thumbnails + 'fox_sports_hd.jpg', '')
     add_link('', 'HTV2', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv2.720p.stream/playlist.m3u8', thumbnails + 'HTV2 HD.jpg', '')
     add_link('', 'HTV7 HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv7.720p.stream/playlist.m3u8', thumbnails + 'HTV7 HD.jpg', '')
@@ -250,6 +262,7 @@ def get_categories():
     #add_link('', 'HBO HD', 0, '', '', '')
     #http://scache.fptplay.net.vn/live/htvcplusHD_1000.stream/manifest.f4m
     add_dir('HTVOnline', url, 5, thumbnails + 'htv.jpg', query, type, 0)
+    #add_dir('SCTV', url, 12, thumbnails + 'SCTV.png', query, type, 0)
     add_dir('VTCPlay - TV', 'http://117.103.206.21:88/Channel/GetChannels?device=4', 10, thumbnails + 'vtcplay.jpg', query, type, 0)
     #add_dir('VTCPlay - Movies', '', 11, thumbnails + 'vtcplay.jpg', query, type, 0)
     add_dir('FPTPlay - TV', url, 6, thumbnails + 'fptplay_logo.jpg', query, type, 0)
@@ -266,7 +279,7 @@ def searchMenu(url, query = '', type='f', page=0):
 
 def resolve_url(url):
   if 'zui.vn' in url:
-    headers2 = {'User-agent' : 'iOS / Safari 7: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B554a Safari/9537.53',
+    headers2 = {'User-agent' : 'iOS / Chrome 32: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) CriOS/32.0.1700.20 Mobile/11B554a Safari/9537.53',
                        'Referer' : 'http://www.google.com'}
     content = make_request(url, headers2)
     soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -276,6 +289,7 @@ def resolve_url(url):
         #movie_play_chapter('mediaplayer', '1', 'rtmp://103.28.37.89:1935/vod3/mp4:/phimle/Vikingdom.2013.720p.WEB-DL.H264-PHD.mp4', '/uploads/movie_view/5c65563b1ce8d106c013.jpg', 'http://zui.vn/subtitle/Vikingdom.2013.720p.WEB-DL.H264-PHD.srt');
         matchObj = re.match( r'[^\']*\'([^\']*)\', \'([^\']*)\', \'([^\']*)\', \'([^\']*)\', \'([^\']*)\'', s, re.M|re.I)
         url = matchObj.group(3)
+        url = url.replace(' ','%20')
         xbmc.Player().play(url)
         xbmc.Player().setSubtitles(matchObj.group(5))
         return
@@ -313,6 +327,14 @@ def resolve_url(url):
       if line.strip().startswith('file: '):
         url = line.strip().replace('file: ', '').replace('"', '').replace(',', '')
         break
+
+  if 'tv24' in url:
+    content = make_request(url)
+    for line in content.splitlines():
+      if line.strip().startswith('\'file\': \'http'):
+        url = line.strip().replace('\'file\': ', '').replace('\'', '').replace(',', '')
+        break
+		
   if 'GetChannelStream' in url or 'GetMovieStream' in url:
     content = make_request(url)
     url = content.replace("\"", "")
@@ -435,5 +457,7 @@ elif mode==10:
     get_vtc(url)
 elif mode==11:
     get_vtc_movies(url, query, type, page)
+elif mode==12:
+    get_sctv(url)
    
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
