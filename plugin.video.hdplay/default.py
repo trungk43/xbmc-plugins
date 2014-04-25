@@ -117,7 +117,7 @@ def get_zui(url = None):
       if href is not None:
         try:
           if span is not None:
-            add_dir(a.get('title'), href, 9, a.img['src'], '', '', 0)
+            add_dir(a.get('title') + ' (' + span.text + ')', href, 9, a.img['src'], '', '', 0)
           else:  
             add_link('', a.get('title'), 0, href, a.img['src'], '')
         except:
@@ -135,6 +135,24 @@ def get_zui(url = None):
   else:
     content = make_request(url)
     soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+    groups = soup.find('ul', {'class' : 'group'})
+    if groups is not None:
+      for item in groups.findAll('a'):
+        matchObj = re.match( r'change_group_chapter\((\d+),(\d+),(\d+)\)', item['onclick'], re.M|re.I)
+        response = urlfetch.fetch(
+			url = 'http://zui.vn/?site=movie&view=show_group_chapter',
+			method ='POST',
+			data = {
+				"pos": matchObj.group(1),
+				"movie_id": matchObj.group(2),
+				"type": matchObj.group(3)
+			}
+		)
+        soup = BeautifulSoup(str(response.content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+        for item in soup.findAll('a'):
+          add_link('', u'Tập ' + a.text, 0, 'http://zui.vn/' + a['href'], thumbnails + 'zui.png', '')
+      return
+	
     items = soup.find('ul',{'class' : 'movie_chapter'})
     if items is not None:
       for item in items.findAll('a'):
@@ -214,7 +232,7 @@ def get_categories():
     add_link('', 'VTV6 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV6HD/VTV6HD_live.smil/playlist.m3u8', thumbnails + 'VTV6 HD.jpg', '')
     add_link('', 'BongdaTV HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/BONGDATV_HD_3000.stream/playlist.m3u8', thumbnails + 'Cab16-BongdaHD.jpg', '')
     add_link('', 'ThethaoTV HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/THETHAO_HD_3000.stream/playlist.m3u8', thumbnails + 'TheThaoTVHD.jpg', '')
-    add_link('', 'SCTV Thethao HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/SCTV_THETHAO_HD_3000.stream/playlist.m3u8', thumbnails + 'SCTV-TheThaoHD.jpg', '')
+    #add_link('', 'SCTV Thethao HD', 0, 'http://yxtlrjzz.cdnviet.com/cgfqdcl/_definst_/SCTV_THETHAO_HD_3000.stream/playlist.m3u8', thumbnails + 'SCTV-TheThaoHD.jpg', '')
     add_link('', 'FOX SPORTS PLUS HD', 0, 'http://203.162.235.26/lives/origin03/foxhd.isml/foxhd.m3u8', thumbnails + 'fox_sports_hd.jpg', '')
     add_link('', 'HTV2', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv2.720p.stream/playlist.m3u8', thumbnails + 'HTV2 HD.jpg', '')
     add_link('', 'HTV7 HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst_/htv7.720p.stream/playlist.m3u8', thumbnails + 'HTV7 HD.jpg', '')
