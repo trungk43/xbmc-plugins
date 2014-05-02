@@ -183,22 +183,16 @@ def addlib(url, name):
 		os.makedirs(library_folder)		
 		
 	if '/file/' in url:
-		headers['Cookie'] = doLogin()
-
-		response = urlfetch.get(url,headers=headers, follow_redirects=False)
-		if response.status==302 and response.headers['location'].find('logout.php')<0:
-			url=response.headers['location']
-
-			k = url.rfind("/")
-			filename = url[k+1:]
-			
-			k = filename.rfind(".")
-			filename = filename[:k] + '.strm'
-			
-			target = open (library_folder + '/' + clearstring(filename), 'w')
-			target.write('plugin://plugin.video.hdrepo/?mode=4&url=' + id)
-			target.close()
-			return
+		filename = name
+		
+		k = filename.rfind("(")
+		k = filename.rfind(".", 0, k)
+		filename = filename[:k] + '.strm'
+		
+		target = open (library_folder + '/' + clearstring(filename), 'w')
+		target.write('plugin://plugin.video.hdrepo/?mode=4&url=' + id)
+		target.close()
+		return
 		
 	if '/folder/' in url:
 		data = {'provider': 'fshare_folder', 'param': url, 'start': 0}
@@ -294,7 +288,7 @@ def add_link(date, name, duration, href, thumb, desc):
 	liz.setProperty('IsPlayable', 'true')
 	if email != '' and freeAccount == 'true':
 		liz.addContextMenuItems([('Send download link',"XBMC.RunPlugin(%s?mode=%s&url=%s) "%(sys.argv[0],13,href))])
-	liz.addContextMenuItems([('Add to your library',"XBMC.RunPlugin(%s?mode=%s&url=%s) "%(sys.argv[0],15,href))])
+	liz.addContextMenuItems([('Add to your library',"XBMC.RunPlugin(%s?mode=%s&url=%s&query=%s) "%(sys.argv[0],15,href,name))])
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
 
 def add_dir(name,url,mode,iconimage,query='',type='folder',page=0, thumbnailImage=''):
