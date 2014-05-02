@@ -166,6 +166,10 @@ def sendLink(url):
 		xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Download link', result['message'], '5000')).encode("utf-8"))	 
 	except:
 		xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Download link', 'Server only accepts 1 request/minute', '5000')).encode("utf-8"))	 
+
+def clearstring(str):
+	str = ''.join(e for e in str if e.isalnum() or e in '.-_ ()')
+	return str
 		
 def addlib(url, name):
 	print 'URL' + url
@@ -191,7 +195,7 @@ def addlib(url, name):
 			k = filename.rfind(".")
 			filename = filename[:k] + '.strm'
 			
-			target = open (library_folder + '/' + filename, 'w')
+			target = open (library_folder + '/' + clearstring(filename), 'w')
 			target.write('plugin://plugin.video.hdrepo/?mode=4&url=' + id)
 			target.close()
 			return
@@ -201,7 +205,7 @@ def addlib(url, name):
 		data = urllib.urlencode(data)
 		result = json.load(urllib.urlopen('http://feed.hdrepo.com/v1/feed.php', data))
 		
-		library_folder = library_folder + '/' + name
+		library_folder = library_folder + '/' + clearstring(name)
 		os.makedirs(library_folder)		
 		
 		for item in result:
@@ -215,7 +219,7 @@ def addlib(url, name):
 			k = filename.rfind(".", 0, k)
 			filename = filename[:k] + '.strm'
 			
-			target = open (library_folder + '/' + filename, 'w')
+			target = open (library_folder + '/' + clearstring(filename), 'w')
 			target.write('plugin://plugin.video.hdrepo/?mode=4&url=' + id)
 			target.close()
 		return
