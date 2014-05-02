@@ -35,8 +35,6 @@ HTTP_DESKTOP_UA = {
 	'User-Agent':'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0'
 }
 
-SEARCH_URL='http://www.google.com/custom?hl=en&q=site:fshare.vn/%s+%s&num=%s&start=%s&as_qdr=%s'
-MEDIA_EXT=['aif','iff','m3u','m4a','mid','mp3','mpa','ra','wav','wma','3g2','3gp','asf','asx','avi','flv','mov','mp4','mpg','mkv','m4v','rm','swf','vob','wmv','bin','cue','dmg','iso','mdf','toast','vcd']
 searchList=[]
 headers = HTTP_DESKTOP_UA
 
@@ -169,6 +167,59 @@ def sendLink(url):
 	except:
 		xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Download link', 'Server only accepts 1 request/minute', '5000')).encode("utf-8"))	 
 		
+def addlib(url, name):
+	print 'URL' + url
+	id = url
+	library_folder = __settings__.getSetting('library_folder')
+	if library_folder == "":
+		xbmc.executebuiltin((u'XBMC.Notification("%s", "%s", %s)' % ('Add to your library', 'You need to setup library folder in Add-on Setting', '5000')).encode("utf-8"))
+		return
+
+	if not os.path.exists(library_folder):
+		os.makedirs(library_folder)		
+		
+	if '/file/' in url:
+		headers['Cookie'] = doLogin()
+
+		response = urlfetch.get(url,headers=headers, follow_redirects=False)
+		if response.status==302 and response.headers['location'].find('logout.php')<0:
+			url=response.headers['location']
+
+			k = url.rfind("/")
+			filename = url[k+1:]
+			
+			k = filename.rfind(".")
+			filename = filename[:k] + '.strm'
+			
+			target = open (library_folder + '/' + filename, 'w')
+			target.write('plugin://plugin.video.hdrepo/?mode=4&url=' + id)
+			target.close()
+			return
+		
+	if '/folder/' in url:
+		data = {'provider': 'fshare_folder', 'param': url, 'start': 0}
+		data = urllib.urlencode(data)
+		result = json.load(urllib.urlopen('http://feed.hdrepo.com/v1/feed.php', data))
+		
+		library_folder = library_folder + '/' + name
+		os.makedirs(library_folder)		
+		
+		for item in result:
+			url = item['title']
+			id = item['param']
+
+			k = url.rfind("/")
+			filename = url[k+1:]
+			
+			k = filename.rfind("(")
+			k = filename.rfind(".", 0, k)
+			filename = filename[:k] + '.strm'
+			
+			target = open (library_folder + '/' + filename, 'w')
+			target.write('plugin://plugin.video.hdrepo/?mode=4&url=' + id)
+			target.close()
+		return
+		
 def searchMenu(url, query = '', type='folder', page=0):
 	add_dir('New Search', url, 2, icon, query, type, 0)
 	add_dir('Clear Search', url, 3, icon, query, type, 0)
@@ -213,10 +264,11 @@ def resolve_url(url):
 	if response.status==302 and response.headers['location'].find('logout.php')<0:
 		url=response.headers['location']
 		# logout
-		cookie = Cookie.SimpleCookie()
-		cookie.load(response.headers.get('set-cookie', ''))
-		headers['Cookie'] = _makeCookieHeader(cookie)
-		urlfetch.get("https://www.fshare.vn/logout.php",headers=headers, follow_redirects=False)
+		if freeAccount == 'true':
+			cookie = Cookie.SimpleCookie()
+			cookie.load(response.headers.get('set-cookie', ''))
+			headers['Cookie'] = _makeCookieHeader(cookie)
+			urlfetch.get("https://www.fshare.vn/logout.php",headers=headers, follow_redirects=False)
 	else:
 		if response.status==200:
 			soup = BeautifulSoup(str(response.content), convertEntities=BeautifulSoup.HTML_ENTITIES)		
@@ -238,6 +290,7 @@ def add_link(date, name, duration, href, thumb, desc):
 	liz.setProperty('IsPlayable', 'true')
 	if email != '' and freeAccount == 'true':
 		liz.addContextMenuItems([('Send download link',"XBMC.RunPlugin(%s?mode=%s&url=%s) "%(sys.argv[0],13,href))])
+	liz.addContextMenuItems([('Add to your library',"XBMC.RunPlugin(%s?mode=%s&url=%s) "%(sys.argv[0],15,href))])
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
 
 def add_dir(name,url,mode,iconimage,query='',type='folder',page=0, thumbnailImage=''):
@@ -246,6 +299,8 @@ def add_dir(name,url,mode,iconimage,query='',type='folder',page=0, thumbnailImag
 	liz=xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
 	liz.setInfo( type="Video", infoLabels={ "Title": name} )
 	liz.setProperty('Fanart_Image', thumbnailImage) 
+	if url == 'fshare_folder':
+		liz.addContextMenuItems([('Add to your library',"XBMC.RunPlugin(%s?mode=%s&url=%s&query=%s) "%(sys.argv[0], 15, query, name))])
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
 	return ok
 
@@ -329,5 +384,7 @@ elif mode==13:
 	sendLink(url)
 elif mode==14:
 	apple(url, str(query), str(page))
+elif mode==15:
+	addlib(url, query)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
