@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.hdrepo"
        name="HDrepo"
-       version="2.6"
+       version="2.6.1"
        provider-name="HDrepo">
     <requires>
 		<import addon="xbmc.python" version="2.1.0" />

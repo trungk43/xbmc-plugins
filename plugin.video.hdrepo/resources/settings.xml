@@ -1,5 +1,6 @@
 <settings>
 	<category label="General">
+		<setting id="library_folder" type="text" label="Library folder" default="" />
 		<setting id="search_num" type="text" label="Search Number" default="50" />
 		<setting id="saveSearch" type="bool" label="Save Search" default="false" />
 	</category>
