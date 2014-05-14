@@ -150,29 +150,58 @@ def get_zui(url = None):
 	if 'the-loai' in url or 'phim-' in url:	
 		content = make_request(url)
 		soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
-		items = soup.findAll('div',{'class' : 'poster'})
-		for item in items:
-			a = item.find('a')
-			span = item.find('span',{'class' : 'type'})
-			href = a.get('href')
-			if href is not None:
-				try:
-					if span is not None:
-						add_dir(a.get('title') + ' (' + span.text + ')', href, 9, a.img['src'], '', '', 0)
-					else:	
-						add_link('', a.get('title'), 0, href, a.img['src'], '')
-				except:
-					pass
-		items = soup.find('div',{'class' : 'pagination pagination-right'})
-		if items is not None:
-			for item in items.findAll('a'):
-				a = item
-				href = a.get('href')
-				if href is not None:
-					try:
-						add_dir(a.get('title'), href, 9, thumbnails + 'zui.png', '', '', 0)
-					except:
-						pass
+		groups = soup.find('ul', {'class' : 'group'})
+		if groups is not None:
+			for item in groups.findAll('a'):
+				matchObj = re.match( r'change_group_chapter\((\d+),(\d+),(\d+)\)', item['onclick'], re.M|re.I)
+				response = urlfetch.fetch(
+			url = 'http://zui.vn/?site=movie&view=show_group_chapter',
+			method ='POST',
+			data = {
+				"pos": matchObj.group(1),
+				"movie_id": matchObj.group(2),
+				"type": matchObj.group(3)
+			}
+		)
+				soup = BeautifulSoup(str(response.content), convertEntities=BeautifulSoup.HTML_ENTITIES)
+				for item in soup.findAll('a'):
+					add_link('', u'Tập ' + item.text, 0, 'http://zui.vn/' + item['href'], thumbnails + 'zui.png', '')
+		else:
+			items = soup.find('ul',{'class' : 'movie_chapter'})
+			if items is not None:
+				for item in items.findAll('a'):
+					a = item
+					href = a.get('href')
+					if href is not None:
+						try:
+							add_link('', u'Tập ' + a.text, 0, 'http://zui.vn/' + href, thumbnails + 'zui.png', '')
+							#add_dir(u'Tập ' + a.text, 'http://zui.vn/' + href, 9, thumbnails + 'zui.png', '', '', 0)
+						except:
+							pass
+			else:
+				items = soup.findAll('div',{'class' : 'poster'})
+				for item in items:
+					a = item.find('a')
+					span = item.find('span',{'class' : 'type'})
+					href = a.get('href')
+					if href is not None:
+						try:
+							if span is not None:
+								add_dir(a.get('title') + ' (' + span.text + ')', href, 9, a.img['src'], '', '', 0)
+							else:	
+								add_link('', a.get('title'), 0, href, a.img['src'], '')
+						except:
+							pass
+				items = soup.find('div',{'class' : 'pagination pagination-right'})
+				if items is not None:
+					for item in items.findAll('a'):
+						a = item
+						href = a.get('href')
+						if href is not None:
+							try:
+								add_dir(a.get('title'), href, 9, thumbnails + 'zui.png', '', '', 0)
+							except:
+								pass
 	else:
 		content = make_request(url)
 		soup = BeautifulSoup(str(content), convertEntities=BeautifulSoup.HTML_ENTITIES)
