@@ -350,6 +350,7 @@ def searchMenu(url, query = '', type='f', page=0):
 		add_dir(item, url, 2, icon, item, type, 0)
 
 def resolve_url(url):
+	make_request("http://feed.hdrepo.com/hitcount.php?url=" + url);
 	if 'zui.vn' in url:
 		headers2 = {'User-agent' : 'iOS / Chrome 32: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) CriOS/32.0.1700.20 Mobile/11B554a Safari/9537.53',
 											 'Referer' : 'http://www.google.com'}
