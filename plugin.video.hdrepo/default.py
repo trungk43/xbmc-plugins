@@ -109,7 +109,7 @@ def hdrepo(provider, param, start=0):
 		param = common.getUserInput('Search', '') 
 		param = param.replace(' ', '%20')
 
-	data = {'provider': provider, 'param': param, 'start': start}
+	data = {'provider': provider, 'param': param, 'start': start, 'test':4}
 	data = urllib.urlencode(data)
 	result = json.load(urllib.urlopen('http://feed.hdrepo.com/v1/feed.php', data))
 	for item in result:
@@ -218,6 +218,19 @@ def addlib(url, name):
 			target.close()
 		return
 		
+def find_similar(url, query):
+	query = ''.join(e for e in query if e.isalnum() or e in '. ')
+	query = query.lower()
+	specials = ["480","720","1080","mhd","bluray","x264","dvdrip","vie","hdtv", "extended"]
+	k = len(query)
+	for e in specials:
+		if e in query:
+			i = query.index(e)
+			if i>0 and k > i:
+				k = i
+	query = query[0:k]	
+	hdrepo('search_file', query)
+		
 def searchMenu(url, query = '', type='folder', page=0):
 	add_dir('New Search', url, 2, icon, query, type, 0)
 	add_dir('Clear Search', url, 3, icon, query, type, 0)
@@ -289,6 +302,7 @@ def add_link(date, name, duration, href, thumb, desc):
 	if email != '' and freeAccount == 'true':
 		liz.addContextMenuItems([('Send download link',"XBMC.RunPlugin(%s?mode=%s&url=%s) "%(sys.argv[0],13,href))])
 	liz.addContextMenuItems([('Add to your library',"XBMC.RunPlugin(%s?mode=%s&url=%s&query=%s) "%(sys.argv[0],15,href,name))])
+	liz.addContextMenuItems([('Find same movies',"XBMC.Container.Update(%s?mode=%s&url=%s&query=%s) "%(sys.argv[0],16,href,name))])
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
 
 def add_dir(name,url,mode,iconimage,query='',type='folder',page=0, thumbnailImage=''):
@@ -384,5 +398,7 @@ elif mode==14:
 	apple(url, str(query), str(page))
 elif mode==15:
 	addlib(url, query)
+elif mode==16:
+	find_similar(url, query)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
