@@ -301,8 +301,8 @@ def get_sctv(url):
 				pass
 		
 def get_categories():
-	add_link('', 'AXN HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=AXNHD/AXNHD_live.smil', thumbnails + 'AXN HD.jpg', '')
-	add_link('', 'Star Movies HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?device=4&path=StarMovieHD/StarMovieHD_live.smil', thumbnails + 'StarMoviesHD.jpg', '')
+	add_link('', 'AXN HD', 0, 'http://117.103.206.24:1935/live/_definst_/AXNHD/AXNHD_live.smil/playlist.m3u8', thumbnails + 'AXN HD.jpg', '')
+	add_link('', 'Star Movies HD', 0, 'http://117.103.206.24:1935/live/_definst_/StarMovieHD/StarMovieHD_live.smil/playlist.m3u8', thumbnails + 'StarMoviesHD.jpg', '')
 	add_link('', 'HBO HD', 0, 'http://117.103.206.21:88/channel/GetChannelStream?device=4&path=VTCHD3/VTCHD3_live.smil', thumbnails + 'HBO-HD.png', '')
 	#add_link('', 'Fashion HD', 0, 'http://203.162.235.26/lives/origin03/fashionhd.isml/fashionhd-2096k.m3u8', thumbnails + 'fashion hd.jpg', '')
 	add_link('', 'Discovery World HD', 0, 'http://frdlzsmb.cdnviet.com/psczntp/_definst/discovery.720p.stream/playlist.m3u8', thumbnails + 'discovery hd.jpg', '')
@@ -311,7 +311,7 @@ def get_categories():
 	#add_link('', 'ITV HD', 0, 'http://203.162.235.26/lives/origin03/itvhd.isml/itvhd-2096k.m3u8', thumbnails + 'ITV HD.jpg', '')
 	add_link('', 'VTC HD1', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=VTCHD1/VTCHD1_live.smil', thumbnails + 'VTC HD1.jpg', '')
 	#add_link('', 'VTC HD2', 0, 'http://203.162.235.26/lives/origin03/vtchd2hd.isml/vtchd2hd-2096k.m3u8', thumbnails + 'VTC HD2.jpg', '')
-	add_link('', 'VTC HD3', 0, 'http://117.103.206.21:88/channel/GetChannelStream?path=HBOHD/HBOHD_live.smil', thumbnails + 'VTC-HD3.jpg', '')
+	add_link('', 'VTC HD3', 0, 'http://117.103.206.24:1935/live/_definst_/HBOHD/HBOHD_live.smil/playlist.m3u8', thumbnails + 'VTC-HD3.jpg', '')
 	add_link('', 'VTV3 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV3HD/VTV3HD_live.smil/playlist.m3u8', thumbnails + 'VTV3 HD.jpg', '')
 	add_link('', 'VTV6 HD', 0, 'http://117.103.206.26:1935/live/_definst_/VTV6HD/VTV6HD_live.smil/playlist.m3u8', thumbnails + 'VTV6 HD.jpg', '')
 	add_link('', 'BongdaTV HD', 0, 'http://vyhjcdkn.cdnviet.com/hlyzcbv/_definst_/VTVCab16.smil/playlist.m3u8', thumbnails + 'Cab16-BongdaHD.jpg', '')
