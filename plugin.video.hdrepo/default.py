@@ -8,7 +8,11 @@ import xbmcaddon
 import urlfetch
 import Cookie
 from BeautifulSoup import BeautifulSoup
-
+try:
+   import StorageServer
+except:
+   import storageserverdummy as StorageServer
+   
 try:
 	import json
 except:
@@ -18,7 +22,7 @@ __settings__ = xbmcaddon.Addon(id='plugin.video.hdrepo')
 __language__ = __settings__.getLocalizedString
 home = __settings__.getAddonInfo('path')
 icon = xbmc.translatePath( os.path.join( home, 'icon.png' ) )
-saveSearch = 'false'
+saveSearch = __settings__.getSetting('saveSearch')
 freeAccount = __settings__.getSetting('freeAccount')
 email = __settings__.getSetting('email')
 
@@ -302,7 +306,7 @@ def add_link(date, name, duration, href, thumb, desc):
 	if email != '' and freeAccount == 'true':
 		liz.addContextMenuItems([('Send download link',"XBMC.RunPlugin(%s?mode=%s&url=%s) "%(sys.argv[0],13,href))])
 	liz.addContextMenuItems([('Add to your library',"XBMC.RunPlugin(%s?mode=%s&url=%s&query=%s) "%(sys.argv[0],15,href,name))])
-	liz.addContextMenuItems([('Find same movies',"XBMC.Container.Update(%s?mode=%s&url=%s&query=%s) "%(sys.argv[0],16,href,name))])
+	liz.addContextMenuItems([('Find similar movies',"XBMC.Container.Update(%s?mode=%s&url=%s&query=%s) "%(sys.argv[0],16,href,name))])
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
 
 def add_dir(name,url,mode,iconimage,query='',type='folder',page=0, thumbnailImage=''):
