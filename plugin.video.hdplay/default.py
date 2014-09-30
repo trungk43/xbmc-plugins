@@ -412,6 +412,7 @@ def resolve_url(url):
 	if 'GetChannelStream' in url or 'GetMovieStream' in url or 'vtvplay' in url:
 		content = make_request(url)
 		url = content.replace("\"", "")
+		url = url[:-5]
 	item = xbmcgui.ListItem(path=url)
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
 	return
