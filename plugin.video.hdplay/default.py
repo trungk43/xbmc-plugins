@@ -315,7 +315,7 @@ def get_categories():
 	add_link('', 'VTV1 HD', 0, 'http://vtvplay.vn/api/channel?streamid=1', thumbnails + 'VTV1.jpg', '')
 	add_link('', 'VTV3 HD', 0, 'http://vtvplay.vn/api/channel?streamid=11', thumbnails + 'VTV3 HD.jpg', '')
 	add_link('', 'VTV6 HD', 0, 'http://vtvplay.vn/api/channel?streamid=3', thumbnails + 'VTV6 HD.jpg', '')
-	add_link('', 'BongdaTV HD', 0, 'http://vtvplay.vn/api/channel?streamid=6', thumbnails + 'Cab16-BongdaHD.jpg', '')
+	add_link('', 'BongdaTV HD', 0, 'http://vtvplay.vn/api/channel?streamid=43', thumbnails + 'Cab16-BongdaHD.jpg', '')
 	add_link('', 'ThethaoTV HD', 0, 'http://vtvplay.vn/api/channel?streamid=5', thumbnails + 'TheThaoTVHD.jpg', '')
 	#add_link('', 'SCTV Thethao HD', 0, 'http://tv24.vn/LiveTV/22/', thumbnails + 'SCTV-TheThaoHD.jpg', '')
 	add_link('', 'FOX SPORTS PLUS HD', 0, 'http://www.htvonline.com.vn/livetv/espn-hd-3132346E61.html', thumbnails + 'fox_sports_hd.jpg', '')
