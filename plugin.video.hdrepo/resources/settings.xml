@@ -1,7 +1,7 @@
 <settings>
 	<category label="General">
 		<setting id="library_folder" type="text" label="Library folder" default="" />
-		<setting id="saveSearch" type="bool" label="Save Search" default="false" />
+		<setting id="search_num" type="text" label="Search Number" default="15" />
 	</category>
 	<category label="FShare">
 		<setting id="username" type="text" label="User name" />
