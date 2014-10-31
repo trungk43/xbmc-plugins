@@ -151,7 +151,7 @@ def search(url, query = '', type='folder', page=0):
 		if query is None:
 			return
 	
-	url=SEARCH_URL % (type,query.replace(' ', '+'),__settings__.getSetting('search_num'),str(int(__settings__.getSetting('search_num'))*page),'all')
+	url=SEARCH_URL % (type,query.replace(' ', '+'),__settings__.getSetting('search_num2'),str(int(__settings__.getSetting('search_num2'))*page),'all')
 	soup = BeautifulSoup(str(make_request(url)), convertEntities=BeautifulSoup.HTML_ENTITIES)		
 	results=soup.findAll('div', {'class': 'g'})
 	for folder in results:
@@ -217,10 +217,10 @@ def resolve_url(url):
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
 
 
-def add_link(date, name, duration, href, thumb, desc):
+def add_link(date, name, duration, href, thumb, desc, findName=1):
 	description = date+'\n\n'+desc
 	u=sys.argv[0]+"?url="+urllib.quote_plus(href)+"&mode=4"
-	if '/file/' in href:
+	if '/file/' in href and findName==1:
 		soup = BeautifulSoup(make_request(href), convertEntities=BeautifulSoup.HTML_ENTITIES)
 		name = soup.find('title').text
 		name = name.replace('[Fshare] ', '')
@@ -311,7 +311,7 @@ def fshare_get_video_list(url, title=None):
 						duration = 0
 						desc = ''
 						if (name is not None) and (len(name)>3) and ((name[-3:] in MEDIA_EXT) or (name[-4:] in MEDIA_EXT)): 
-								add_link(date, name+ '	(' + size + ')', duration, href, thumb, desc)
+								add_link(date, name+ '	(' + size + ')', duration, href, thumb, desc, 0)
 
 def fslink_get_video_categories(url):
 				soup = BeautifulSoup(make_request(url), convertEntities=BeautifulSoup.HTML_ENTITIES)
