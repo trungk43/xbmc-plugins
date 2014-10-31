@@ -33,7 +33,7 @@ HTTP_DESKTOP_UA = {
 }
 
 SEARCH_URL='http://www.google.com/custom?hl=en&q=site:fshare.vn/%s+%s&num=%s&start=%s&as_qdr=%s'
-MEDIA_EXT=['aif','iff','m3u','m4a','mid','mp3','mpa','ra','wav','wma','3g2','3gp','asf','asx','avi','flv','mov','mp4','mpg','mkv','m4v','rm','swf','vob','wmv','bin','cue','dmg','iso','mdf','toast','vcd']
+MEDIA_EXT=['m2ts','aif','iff','m3u','m4a','mid','mp3','mpa','ra','wav','wma','3g2','3gp','asf','asx','avi','flv','mov','mp4','mpg','mkv','m4v','rm','swf','vob','wmv','bin','cue','dmg','iso','mdf','toast','vcd']
 FSLINK='http://fslink.us'
 searchList=[]
 
@@ -310,7 +310,7 @@ def fshare_get_video_list(url, title=None):
 						date = ''
 						duration = 0
 						desc = ''
-						if (name is not None) and (len(name)>3) and (name[-3:] in MEDIA_EXT): 
+						if (name is not None) and (len(name)>3) and ((name[-3:] in MEDIA_EXT) or (name[-4:] in MEDIA_EXT)): 
 								add_link(date, name+ '	(' + size + ')', duration, href, thumb, desc)
 
 def fslink_get_video_categories(url):
